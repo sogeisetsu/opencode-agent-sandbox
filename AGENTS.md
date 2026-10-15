@@ -19,6 +19,13 @@
 - 删工作树用 `git worktree remove --force <path>`（有未提交产物时必须 `--force`），再 `git worktree prune`。报 "being used by another process" 说明还有会话/进程以该目录为工作目录，得先结束对应会话或重启 host，再删目录。
 - 清完自检：`git worktree list` 只剩本仓库主目录，`git branch` 只剩 `main`。
 
+## knowledge/（知识沉淀）
+- 用途：存放**测试过程中实测到的 Git / GitHub 知识**（踩的坑、验证过的命令、搞清楚的机制），不是教程搬运。
+- 结构约定：**一个类别一个子文件夹**，文件名要自解释（看名字就知道讲什么）；根目录 `knowledge/README.md` 是索引，新增类别时同步更新它的目录表。
+- 写作纪律（因为这个仓库是 public，必须守）：**不写隐私** —— 不写账号名、邮箱、仓库 URL、本机绝对路径、token 或其任何派生物（哈希、前缀）；举例一律用 `<owner>/<repo>`、`<path>`、`~/.config/<app>` 占位。每条结论标注 **已验证 / 推测**，破坏性命令必须同时写风险与前置检查。
+- 画草图：按全局 `AGENTS-tools.md` 的规则用 **Excalidraw 扩展** —— 写一个 `.excalidraw` 场景文件放进对应子文件夹，md 里用相对链接指过去；**不要**自己拼 ASCII 框图或渲染 SVG/截图。
+- 触发时机：每次在沙箱里搞明白一个 Git/GitHub 机制或踩到坑，就把结论补进对应子文件夹，别只留在对话里。
+
 ## 测试其他项目
 - 放在仓库根下的子目录，如 `E:\opencode agents\test\<project>\`，并把这些子目录加进 `.gitignore`，让仓库本体保持干净。
 - 子目录内按那个项目自己的规范来，不要套用本文件。
