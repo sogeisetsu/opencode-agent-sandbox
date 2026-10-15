@@ -10,7 +10,7 @@
 
 ## 环境
 - Windows + PowerShell 7。仓库路径含空格：`E:\opencode agents\test`，命令里要加引号或用 `-LiteralPath`。
-- **没有 remote**，没有 push 兜底：删分支、删工作树、丢未提交改动都不可恢复。动手前按全局硬约束先确认。
+- remote：`origin` → `sogeisetsu/opencode-agent-sandbox`（public），只有 `main` 会推上去；multi-run 的模型分支从不推。所以删分支、删工作树、丢未提交改动基本不可恢复，动手前按全局硬约束先确认。
 
 ## multi-run / 工作树约定
 - 每次 multi-run 会建一个工作树：`C:\Users\suyue\.local\share\opencode\worktree\<repo-hash>\<dir>`，分支名形如 `<任务名>/<model-slug>`（目录名里 `/` 变 `-`）。
