@@ -21,6 +21,8 @@
 | `github-credentials/` | 凭据存在哪、怎么只读定位、怎么轮换；SQLite WAL 是什么 |
 | `github-cli/` | `gh` 命令速查与排查 |
 | `github-code-search/` | 公开代码搜索（grep.app 类工具）能干什么、不能干什么 |
+| `oh-my-opencode-slim/` | OMO slim 插件：角色名册、配置 schema、Council 多模型共识机制 |
+| `opencode-host/` | 托管 OpenCode CLI 怎么定位、有哪些子命令与托管配置文件 |
 | `opencode-v2/` | OpenCode V2 的分发（CLI/Desktop 两条线、Windows 装 Desktop 不带终端命令）、三端一服务架构、web UI 认证与端口、V1/V2 源码对照纠错 |
 
 ## 写作纪律（重要）
