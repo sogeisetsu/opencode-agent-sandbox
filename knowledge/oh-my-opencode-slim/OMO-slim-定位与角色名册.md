@@ -13,6 +13,7 @@
 - 可直接读的实际安装源码在
   `~/.cache/opencode/npm/oh-my-opencode-slim@<版本>/<hash>/node_modules/oh-my-opencode-slim/`
   其中 `dist/server/index.js` 是打包后的运行时（含全部角色提示词、权限、hook），`dist/**/*.d.ts` 是同名类型声明，`oh-my-opencode-slim.schema.json` 是配置 schema。
+- **别信 `~/.local/state/opencode/plugin-meta.json` 里的 `target`**：它是历史加载记录，可能指向已经不在磁盘上的旧路径（实测指向 `packages/<插件>@<旧版本>/node_modules/...`，而实际存在的只有 `npm/<插件>@<新版本>/<hash>/node_modules/...`）。判断「当前跑的是哪个版本」用 `ls` 看磁盘，别用 meta。
 
 > 验证方式（只读）：对上面目录里的 `dist/server/index.js` 直接 `Select-String` 关键词即可定位到定义处，代码里带 `// src/xxx.ts` 的原始路径注释，很好对号入座。
 
@@ -61,11 +62,14 @@
 
 ## 随包附带的 skill
 
-安装包自带 9 个 skill（源码目录 `src/skills/`）：
-`clonedeps`、`codemap`、`deepwork`、`loop-engineering`、`oh-my-opencode-slim`、`reflect`、`simplify`、`verification-planning`、`worktrees`。
-它们会按角色/预设被授予（例如章节里 `skills: { orchestrator: ["*"], oracle: ["simplify"] }` 这类写法）。
+`CUSTOM_SKILLS` 里 **8 个**（v3.0.4 实测，源码目录 `src/skills/`）：
+`clonedeps`、`codemap`、`deepwork`、`oh-my-opencode-slim`、`reflect`、`simplify`、`verification-planning`、`worktrees`。
+
+- 早先版本还有第 9 个 `loop-engineering`，**3.0.4 里已不存在**（`grep -c 'loop-engineering' dist/server/index.js` → 0）。注意 `/loop` **命令**仍在 `DISABLED_COMMANDS_VALUES` 里——命令没删，skill 删了，别把两者混为一谈。
+- 另有 1 个 **permission-only** skill：`requesting-code-review`（`allowedAgents: ["oracle"]`），不进 `CUSTOM_SKILLS`，只在授权计算时参与（`getDefaultGrantedSkillNames` 把两个数组拼起来）。
+- 都按角色/预设授予（例如 `skills: { orchestrator: ["*"], oracle: ["simplify"] }` 这类写法）。
 
 ## 已验证 / 推测
 
-- **已验证**：归属归属（插件非宿主）、9 个角色名、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`getModelForAgent` 顺序、fixer→librarian 特例、随包 skill 清单——全部对着 `dist/server/index.js` 读出来的。
+- **已验证**：归属（插件非宿主）、9 个角色名、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→librarian 特例、随包 skill 清单（**v3.0.4 复核：8 个，`loop-engineering` 已移除**）——全部对着 `dist/server/index.js` 读出来的。
 - **推测**：当顶层 `agents.council.model` 与所选预设里的 `council.model` **同时**存在时的最终胜出者（合并/再施加两处逻辑并存），建议落地后实机确认生效模型，不要只凭推断。

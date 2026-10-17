@@ -28,8 +28,13 @@ $ opencode pair
 
 ## 端口与配置
 
-- 默认只听 localhost；端口：**Windows 45278**，**macOS / Linux / WSL 49374**（Windows 从 49152 起保留端口，所以要避开）。
-- `opencode service status` 打印当前地址。
+- 默认只听 localhost。
+- **实测（Windows + 托管 v2.0.28，2026-10-17）**：共享 service 地址是 `http://127.0.0.1:49374`，且 `opencode service get` 返回 `{}`（没有任何 port / hostname 持久化覆盖）→ **49374 就是默认值**，不是谁设出来的。
+- 早先按官方文档记的是「Windows **45278** / macOS·Linux·WSL **49374**」，理由是「Windows 从 49152 起保留端口，要避开」。**这条与实测冲突，标为存疑**：
+  - 45278 落在 49152 **以下**，和「避开保留段」这个理由本身就对不上；
+  - 但也只有一个 Windows 样本，排除不了构建差异或环境变量影响。
+  - 复核方式：`opencode service status` 看地址 → `opencode service get` 确认没有显式配置 → 换一台干净的 Windows 再取一次。
+- `opencode service status` 只打印一行 URL（如 `http://127.0.0.1:49374`），不带额外状态字段。
 - 用 `opencode service set` 改：
 
 ```bash
@@ -57,6 +62,7 @@ ssh -L 49374:127.0.0.1:49374 <server>
 
 ## 已验证 / 随时间变化
 
-- 已验证（官方文档）：pair 链接 5 分钟一次性、30 天会话、改密码登出、端口、`service set` 各项、`serve`、`pair --remote` 与 `--yes`、CORS 语义。
+- 已验证（官方文档）：pair 链接 5 分钟一次性、30 天会话、改密码登出、`service set` 各项、`serve`、`pair --remote` 与 `--yes`、CORS 语义。
+- 已验证（本机）：Windows 上的实际监听端口是 49374，且无持久化覆盖（与官方文档的 45278 不符，见上节存疑说明）。
 - 已验证（源码）：`SESSION_TTL_SECONDS` 硬编码、token = HMAC(password)、cookie 名带端口、配对码 5 分钟一次性、web shell 由内嵌 app 归档提供。
 - **随时间变化**：这是产品面，数值（TTL / 端口）可能被改。
