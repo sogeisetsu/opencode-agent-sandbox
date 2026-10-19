@@ -3,10 +3,10 @@
 ## 这是什么
 一次性测试沙箱，不是产品仓库。两个用途：
 
-1. **横向评测模型**：用 OpenChamber 的 multi-run 让多个模型跑同一提示词，对比结果。历史产出是单文件 `index.html` / `octopus-bike.html` 这类 SVG/CSS/JS 演示。
+1. **横向评测模型**：用 OpenChamber 的 multi-run 让多个模型跑同一提示词，对比结果。产出是单文件 SVG/CSS/JS 演示（早期的 `index.html`、`octopus-bike.html`），现在收进 `evals/<任务名>/<model-slug>.html`。
 2. **验证其他项目**：在干净子目录里跑别人的项目，看能不能装/跑起来。
 
-除 `.gitignore` 外没有任何源码、依赖、构建/测试/lint 配置或 CI；`main` 只有一个 `chore: initial commit`。别去找构建命令，也别为了"把项目补完整"而添加 manifest、脚手架、CI 或 README —— 除非用户明确要求。
+除 `.gitignore` 外没有任何源码、依赖、构建/测试/lint 配置或 CI；`main` 只有一个 `chore: initial commit`。别去找构建命令，也别为了"把项目补完整"而添加 manifest、脚手架、CI 或 README —— 除非用户明确要求；`knowledge/`、`evals/` 各有一份索引 README，属于约定的一部分，不在此列。
 
 ## 环境
 - Windows + PowerShell 7。仓库路径含空格：`E:\opencode agents\test`，命令里要加引号或用 `-LiteralPath`。
@@ -18,6 +18,12 @@
 - 评测结束后顺手清理：删掉本次的分支和工作树，不长期保留。
 - 删工作树用 `git worktree remove --force <path>`（有未提交产物时必须 `--force`），再 `git worktree prune`。报 "being used by another process" 说明还有会话/进程以该目录为工作目录，得先结束对应会话或重启 host，再删目录。
 - 清完自检：`git worktree list` 只剩本仓库主目录，`git branch` 只剩 `main`。
+
+## evals/（横向测评产物）
+- 用途：**原样**存放各模型对同一提示词的产出，只用于对比。不合并、不改代码、不互相"修好"——哪怕某个模型写得明显更烂。
+- 结构：`evals/<任务名>/<model-slug>.ext`。一个提示词一个子文件夹，一个模型一个文件；`model-slug` 与 multi-run 分支名 `<任务名>/<model-slug>` 的后半段一致，用来回溯是哪次跑的。同一任务换提示词（比如"加动画版"）就另开子文件夹，别覆盖旧文件。
+- 登记：`evals/README.md` 是登记表，新增文件必须补一行 —— 文件名里只有模型，**提示词要点、模型、时间**只能靠这张表。
+- 从工作树收录时只拷最终产物，分支和工作树按上面的流程清掉。
 
 ## knowledge/（知识沉淀）
 - 用途：存放**测试过程中实测到的各种知识**（不限于 Git/GitHub —— 任何机制、工具、流程、踩过的坑、验证过的命令都收），不是教程搬运。当前只有 Git/GitHub 类别，只是因为这是目前碰到的。
