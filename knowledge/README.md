@@ -3,6 +3,8 @@
 这个文件夹放的是**在沙箱里实测过**的知识：踩过的坑、验证过的命令、搞清楚的机制。**不限于 Git / GitHub** —— 任何领域、任何工具、任何流程都往这里收，成不成类只看有没有第二个同类文件。
 不是教程搬运，每条结论都对应一次实际执行。
 
+唯一的例外是 `reading-notes/`：用户要求归档的读书/史料笔记，不属于实测，内容按原文保留，核对范围在各自文件开头写明。
+
 ## 怎么用
 
 - 一个类别一个子文件夹，先看下面的目录表再进去。
@@ -25,6 +27,7 @@
 | `opencode-host/` | 托管 OpenCode CLI 怎么定位、有哪些子命令、PATH 里同名 V1 的辨识、托管配置文件 |
 | `opencode-provider/` | provider 从哪来（内置 catalog 三层来源）、凭据归谁（opencode-go 与 opencode 同身份）、端点（zen/inference 同网关）、配置块作为覆盖层删了会怎样、OpenChamber 怎么管 provider |
 | `opencode-v2/` | OpenCode V2 的分发（CLI/Desktop 两条线、Windows 装 Desktop 不带终端命令）、三端一服务架构、web UI 认证与端口、V1/V2 源码对照纠错 |
+| `reading-notes/` | 读书/史料笔记（非实测）：《卫国那些事儿》与《左传》引文核对 |
 
 ## 写作纪律（重要）
 
