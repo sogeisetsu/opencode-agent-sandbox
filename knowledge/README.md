@@ -23,6 +23,8 @@
 | `github-credentials/` | 凭据存在哪、怎么只读定位、怎么轮换；SQLite WAL 是什么 |
 | `github-cli/` | `gh` 命令速查与排查 |
 | `github-code-search/` | 公开代码搜索（grep.app 类工具）能干什么、不能干什么 |
+| `chrome-devtools-mcp/` | Chrome DevTools MCP：抢前台与后台开页面、rAF 节流、用 trace 量动画每帧开销、SVG 局部/全局坐标互量 |
+| `eval-comparison/` | 同一任务下多个模型产物的横向对比结论（先例：两个鹈鹕骑自行车动画的实现与性能） |
 | `oh-my-opencode-slim/` | OMO slim 插件：角色名册、配置 schema、Council 多模型共识机制、生成的 preset 与 provider 来源 |
 | `opencode-host/` | 托管 OpenCode CLI 怎么定位、有哪些子命令、PATH 里同名 V1 的辨识、托管配置文件 |
 | `opencode-provider/` | provider 从哪来（内置 catalog 三层来源）、凭据归谁（opencode-go 与 opencode 同身份）、端点（zen/inference 同网关）、配置块作为覆盖层删了会怎样、OpenChamber 怎么管 provider |
