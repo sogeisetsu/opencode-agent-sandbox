@@ -62,10 +62,10 @@
 
 ## 随包附带的 skill
 
-`CUSTOM_SKILLS` 里 **8 个**（v3.0.4 实测，源码目录 `src/skills/`）：
-`clonedeps`、`codemap`、`deepwork`、`oh-my-opencode-slim`、`reflect`、`simplify`、`verification-planning`、`worktrees`。
+`CUSTOM_SKILLS` 里 **11 个**（v3.0.5 实测，源码目录 `src/skills/`）：
+`clonedeps`、`codemap`、`simplify`、`deepwork`、`verification-planning`、`reflect`、`oh-my-opencode-slim`、`worktrees`，加上 v3.0.5 新增的三个行为约束型 skill `ai-estimates`、`deanchor`、`step-back`（详见 [OMO-slim-三个行为约束skill-估工防照抄与收手.md](OMO-slim-三个行为约束skill-估工防照抄与收手.md)）。
 
-- 早先版本还有第 9 个 `loop-engineering`，**3.0.4 里已不存在**（`grep -c 'loop-engineering' dist/server/index.js` → 0）。注意 `/loop` **命令**仍在 `DISABLED_COMMANDS_VALUES` 里——命令没删，skill 删了，别把两者混为一谈。
+- 早先版本还有第 9 个 `loop-engineering`，**3.0.4 起不在 `CUSTOM_SKILLS` 里**（`grep -c 'loop-engineering' dist/server/index.js` → 0）；注意 3.0.5 的 `src/skills/loop-engineering/SKILL.md` **文件仍在磁盘上**，只是没被注册——判断在不在看数组，别只看文件。另外 `/loop` **命令**仍在 `DISABLED_COMMANDS_VALUES` 里——命令没删，skill 删了，别把两者混为一谈。
 - 另有 1 个 **permission-only** skill：`requesting-code-review`（`allowedAgents: ["oracle"]`），不进 `CUSTOM_SKILLS`，只在授权计算时参与（`getDefaultGrantedSkillNames` 把两个数组拼起来）。
 - 都按角色/预设授予（例如 `skills: { orchestrator: ["*"], oracle: ["simplify"] }` 这类写法）。
 
