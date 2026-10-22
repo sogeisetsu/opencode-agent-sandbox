@@ -14,6 +14,8 @@ v3.0.5 的 `CUSTOM_SKILLS` 从 8 个涨到 11 个，新增 `ai-estimates`、`dea
 
 共同点：三者都是**在动手前或动手中途插一个判断**，输出的都是"该不该这么干/该怎么估"，而不是一份交付物。
 
+> 全部 11 个随包 skill（含类型与授权对象）见 [OMO-slim-随包skill全表.md](OMO-slim-随包skill全表.md)。
+
 ## 什么时候会真的生效
 
 - 三个都挂在 `allowedAgents: ["orchestrator"]` 上——只有主 agent 能加载，子 agent（explorer/fixer/designer 等）拿不到。所以实际影响的是编排层：怎么估、怎么派活、什么时候停手。

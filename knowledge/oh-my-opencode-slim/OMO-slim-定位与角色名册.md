@@ -62,6 +62,8 @@
 
 ## 随包附带的 skill
 
+> 逐个的用途、类型与授权对象见 [OMO-slim-随包skill全表.md](OMO-slim-随包skill全表.md)。
+
 `CUSTOM_SKILLS` 里 **11 个**（v3.0.5 实测，源码目录 `src/skills/`）：
 `clonedeps`、`codemap`、`simplify`、`deepwork`、`verification-planning`、`reflect`、`oh-my-opencode-slim`、`worktrees`，加上 v3.0.5 新增的三个行为约束型 skill `ai-estimates`、`deanchor`、`step-back`（详见 [OMO-slim-三个行为约束skill-估工防照抄与收手.md](OMO-slim-三个行为约束skill-估工防照抄与收手.md)）。
 
