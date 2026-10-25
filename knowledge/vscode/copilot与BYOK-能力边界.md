@@ -8,10 +8,17 @@ Copilot 已合并为**单个内置扩展**：包名 `copilot-chat`，显示名 G
 
 ## BYOK 覆盖范围（关键）
 
-覆盖：chat、agent、utility。
-**不覆盖**：补全、语义搜索、embedding —— 这些仍然走 Copilot 官方服务。
+覆盖：chat、agent、utility（还是 utility 那档的模型选择）。
+**不覆盖**：行内补全，以及语义搜索 —— 仍然走 Copilot 官方服务。
 
-所以"BYOK 接了自己模型但补全没变"是正常现象。
+这里的 **embedding** 不是单独一项功能，而是语义搜索背后的机制：Copilot 把工作区里的文件切块、转成向量建索引（官方文档叫 workspace index / semantic index），`#codebase` 靠它按"意思"而不是关键词找代码。这个索引用的是 Copilot 服务方的 embedding 模型，跟你 BYOK 接的对话模型无关，所以也换不掉。
+
+推论：
+- "BYOK 接了自己模型但补全没变"是正常现象。
+- "BYOK 后 `#codebase` 还是按 Copilot 的方式检索"同理 —— 想纯靠本地关键词搜，退回 grep / 文件搜索那条路。
+- `chat.disableAIFeatures: true` 一关，这套索引也就没意义了。
+
+另注：**待确认** —— 索引是 VS Code 客户端自动建还是服务端建，取决于工作区来源（本地目录 / 远程仓库），未逐项复核。
 
 ## 开关的组合
 
