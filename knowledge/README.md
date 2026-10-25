@@ -32,6 +32,7 @@
 | `opencode-v2/` | OpenCode V2 的分发（CLI/Desktop 两条线、Windows 装 Desktop 不带终端命令）、三端一服务架构、web UI 认证与端口、V1/V2 源码对照纠错 |
 | `planning-capabilities/` | 从想法到计划的 14 个能力：`/weigh`、`/plan-feature`、`/craft-goal` 三个 OpenChamber 命令，加上 config / OMO 的 skill，按"卡在哪一步"分流 |
 | `reading-notes/` | 读书/史料笔记（非实测）：《卫国那些事儿》与《左传》引文核对 |
+| `vscode/` | VS Code 1.143：扩展禁用/卸载与更新残留、键位覆盖与组合键陷阱、补全折叠与语言服务边界、Copilot/BYOK 能力边界、GitHub 集成边界、光标字体 Profile 等设置坑 |
 
 ## 写作纪律（重要）
 
