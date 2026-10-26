@@ -14,6 +14,8 @@
 
 `Create PR` 在它的 `package.json` 里是 `when=false`，**不会出现在命令面板**——不是坏了，是被关掉了。
 
+精确位置（已查证内置 `extensions/github/package.json`）：`contributes.menus.commandPalette` 里，`github.publish` 的 `when` 是 `git-base.gitEnabled && workspaceFolderCount != 0 && remoteName != 'codespaces'`，其余八条（`github.createPullRequest`、`github.openPullRequest`、`github.graph.openOnGitHub`、三个 `copyVscodeDevLink*`、`github.openOnVscodeDev`、`github.timeline.openOnGitHub`）全是 `when: "false"`。所以命令面板里只剩 Publish to GitHub 一条。
+
 ## gh 的登录和 VS Code 的内置认证是两套
 
 `gh auth` 和 VS Code 的 GitHub 认证各存各的，互不相认。想让 `git` 复用 `gh` 的凭据：
