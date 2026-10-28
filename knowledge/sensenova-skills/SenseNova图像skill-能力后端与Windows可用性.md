@@ -18,7 +18,7 @@
 
 `[源码]`
 
-注意 `sn-image-base` 内部还有 `sn-image-edit` 这个改图入口（见坑清单第 3 条），它不在上表的独立 skill 里。
+`sn-image-edit` 是 `sn-image-base` 的改图子命令（见坑清单第 3 条），不占独立 skill 位；名字对得上属于推测，功能归属是 `[源码]`。
 
 ## 三个可切换的生图后端
 
@@ -59,7 +59,7 @@
 & '<git>\bin\bash.exe' -lc 'bash --version | head -1; mapfile -t a < <(printf "1\n2\n"); echo ${#a[@]}; command -v jq'
 ```
 
-实测输出：`GNU bash, version 5.3.9(1)-release (x86_64-pc-cygwin)`、`mapfile_n=2`、`jq` 解析到 WinGet 装的那份。`/tmp` 在 Git Bash 里存在（映射到用户临时目录），`/tmp/openclaw` 只是没建，不是不可写。
+实测输出：`GNU bash, version 5.3.9(1)-release (x86_64-pc-cygwin)`、`mapfile_n=2`、`jq` 解析到 WinGet 装的那份。`/tmp` 在 Git Bash 里存在且可写（映射到哪属推测，不影响用），`/tmp/openclaw` 只是没建，不是不可写。
 
 `[本机]` 结论：**Windows 上不必为 bash/jq/mapfile 上 WSL2**，真正没验证的只剩两点——Python 依赖（httpx / pillow / python-dotenv）是否装好，以及 `sn-infographic` 的 Main/Worker 子代理架构需要宿主提供 subagent 能力。
 
