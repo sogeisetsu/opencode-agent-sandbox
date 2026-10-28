@@ -11,7 +11,7 @@ evals/<任务名>/<model-slug>.html
 ```
 
 - 一个提示词 = 一个子文件夹，名字用任务主题（`pelican-bike`），小写连字符。
-- 一个模型 = 一个文件，文件名就是模型的 slug，与 multi-run 分支名 `<任务名>/<model-slug>` 里的后半段一致，方便回溯是哪次跑的。
+- 一个模型 = 一个文件，文件名就是**实际产出模型**的 slug，通常与 multi-run 分支名 `<任务名>/<model-slug>` 的后半段一致。分支名不一定可信（有分支叫 `fusion-xxx`、产物其实是 DeepSeek 的），对不上就以会话库查到的为准。
 - 同一任务下想换提示词（比如"加动画版"），另开子文件夹，别覆盖旧文件。
 
 ## 怎么收录
@@ -20,14 +20,14 @@ multi-run 在工作树里跑完后，只把最终产物按上面的命名拷进�
 
 ## 登记表
 
-新增文件时在下面补一行，写清提示词要点和跑的模型 —— 文件名里只有模型名，提示词要点只能靠这张表。
+新增文件时在下面补一行，写清提示词要点、跑的模型和产出会话 id —— 文件名里只有模型名，其余只能靠这张表。
 
-| 文件 | 提示词（要点） | 模型 | 时间 |
-|---|---|---|---|
-| `pelican-bike/deepseek-v4.1-flash-1017.html` | 鹈鹕骑自行车（单文件 HTML 演示） | DeepSeek V4.1 flash 1017 | 2026-10 |
-| `pelican-bike/minimax-m3.1-flash-free.html` | 鹈鹕骑自行车（单文件 HTML 演示，带播放/速度控制） | MiniMax M3.1 Flash Free | 2026-10 |
-| `html-svg-2d-javascript/deepseek-v4.1-flash.html` | 章鱼骑自行车（单文件 HTML SVG 2D 动画，带播放/速度控制；后续在同一会话里修了触手路径、围巾遮挡、曲柄转向） | DeepSeek V4.1 Flash（`opencode-go`） | 2026-10-15 |
+| 文件 | 提示词（要点） | 模型 | 时间 | 产出会话 |
+|---|---|---|---|---|
+| `pelican-bike/deepseek-v4.1-flash-1017.html` | 鹈鹕骑自行车（单文件 HTML 演示） | DeepSeek V4.1 flash 1017 | 2026-10 | — |
+| `pelican-bike/minimax-m3.1-flash-free.html` | 鹈鹕骑自行车（单文件 HTML 演示，带播放/速度控制） | MiniMax M3.1 Flash Free | 2026-10 | — |
+| `html-svg-2d-javascript/deepseek-v4.1-flash.html` | 章鱼骑自行车（单文件 HTML SVG 2D 动画，带播放/速度控制；后续在同一会话里修了触手路径、围巾遮挡、曲柄转向） | DeepSeek V4.1 Flash（`opencode-go`） | 2026-10-15 | `ses_ec06d2736ffe5Semt6V4cHioyb` |
 
-提示词原文未存档，上面写的是任务要点；早期的同类产物（`index.html`、`octopus-bike.html`）没有入库，只留在 `AGENTS.md` 的历史记录里。
+提示词原文未存档，上面写的是任务要点；同一次章鱼任务里其他模型的产出（`octopus-bike.html` 等）没有入库。
 
 产物之间的横向对比结论不放在这里，见 [`../knowledge/eval-comparison/鹈鹕骑自行车-两版实现与性能对比.md`](../knowledge/eval-comparison/鹈鹕骑自行车-两版实现与性能对比.md)。

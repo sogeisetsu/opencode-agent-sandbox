@@ -6,7 +6,7 @@
 1. **横向评测模型**：用 OpenChamber 的 multi-run 让多个模型跑同一提示词，对比结果。产出是单文件 SVG/CSS/JS 演示（早期的 `index.html`、`octopus-bike.html`），现在收进 `evals/<任务名>/<model-slug>.html`。
 2. **验证其他项目**：在干净子目录里跑别人的项目，看能不能装/跑起来。
 
-除 `.gitignore` 外没有任何源码、依赖、构建/测试/lint 配置或 CI；`main` 只有一个 `chore: initial commit`。别去找构建命令，也别为了"把项目补完整"而添加 manifest、脚手架、CI 或 README —— 除非用户明确要求；`knowledge/`、`evals/` 各有一份索引 README，属于约定的一部分，不在此列。
+除 `.gitignore` 和 `.opencode/command/`（只放自定义命令，没有别的代码）外没有任何源码、依赖、构建/测试/lint 配置或 CI；`main` 只有一个 `chore: initial commit`。别去找构建命令，也别为了"把项目补完整"而添加 manifest、脚手架、CI 或 README —— 除非用户明确要求；`knowledge/`、`evals/` 各有一份索引 README，属于约定的一部分，不在此列。
 
 ## 环境
 - Windows + PowerShell 7。仓库路径含空格：`E:\opencode agents\test`，命令里要加引号或用 `-LiteralPath`。
@@ -21,8 +21,8 @@
 
 ## evals/（横向测评产物）
 - 用途：**原样**存放各模型对同一提示词的产出，只用于对比。不合并、不改代码、不互相"修好"——哪怕某个模型写得明显更烂。
-- 结构：`evals/<任务名>/<model-slug>.ext`。一个提示词一个子文件夹，一个模型一个文件；`model-slug` 与 multi-run 分支名 `<任务名>/<model-slug>` 的后半段一致，用来回溯是哪次跑的。同一任务换提示词（比如"加动画版"）就另开子文件夹，别覆盖旧文件。
-- 登记：`evals/README.md` 是登记表，新增文件必须补一行 —— 文件名里只有模型，**提示词要点、模型、时间**只能靠这张表。
+- 结构：`evals/<任务名>/<model-slug>.ext`。一个提示词一个子文件夹，一个模型一个文件；`model-slug` 用**实际产出模型**，通常与 multi-run 分支名 `<任务名>/<model-slug>` 的后半段一致，但分支名不一定可信（有分支叫 `fusion-xxx`、产物其实是 DeepSeek 的），对不上以会话库为准。同一任务换提示词（比如"加动画版"）就另开子文件夹，别覆盖旧文件。
+- 登记：`evals/README.md` 是登记表，新增文件必须补一行 —— 文件名里只有模型，**提示词要点、模型、时间、产出会话 id**只能靠这张表。会话 id 从 `~/.local/share/opencode/opencode.db` 查（方法见 `knowledge/session-provenance/`），不记的话事后只能靠内容反推。
 - 从工作树收录时只拷最终产物，分支和工作树按上面的流程清掉。
 
 ## knowledge/（知识沉淀）
@@ -32,6 +32,7 @@
 - 画草图：用 **Excalidraw 扩展** —— 写一个 `.excalidraw` 场景文件放进对应子文件夹，md 里用相对链接指过去；**不要**自己拼 ASCII 框图或渲染 SVG/截图。
 - **主动补充（默认动作，别等人催）**：只要这次会话搞明白了某个机制、摸清了一个工具或流程、踩了坑、验证了一条命令，就在收尾前把它写进 `knowledge/` 对应类别；没有合适的子文件夹就新建一个（知识类型不受限，别只往 Git/GitHub 里塞）。
 - **架构可调（别硬塞）**：补内容时如果发现现有分类不合理（该独立成一类的、命名看不懂的、索引表过时了），就直接调整 —— 拆/并子文件夹、改名、同步 `knowledge/README.md` 的目录表；架构服务于好找，不要为了"不动既有文件"把知识塞进不合适的地方。
+- 入库流程固定，用 `/knowledge-ingest` 命令（`.opencode/command/knowledge-ingest.md`）：去重归类 → 脱敏 → 登记索引 → 提交推送 → 贴真实输出。
 
 ## 测试其他项目
 - 放在仓库根下的子目录，如 `E:\opencode agents\test\<project>\`，并把这些子目录加进 `.gitignore`，让仓库本体保持干净。
