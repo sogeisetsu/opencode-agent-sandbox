@@ -26,7 +26,7 @@ multi-run 在工作树里跑完后，只把最终产物按上面的命名拷进�
 |---|---|---|---|
 | `pelican-bike/deepseek-v4.1-flash-1017.html` | 鹈鹕骑自行车（单文件 HTML 演示） | DeepSeek V4.1 flash 1017 | 2026-10 |
 | `pelican-bike/minimax-m3.1-flash-free.html` | 鹈鹕骑自行车（单文件 HTML 演示，带播放/速度控制） | MiniMax M3.1 Flash Free | 2026-10 |
-| `html-svg-2d-javascript/fusion-mv9kbj67.html` | 章鱼骑自行车（单文件 HTML SVG 2D 动画，带播放/速度控制） | fusion-mv9kbj67（multi-run） | 2026-10 |
+| `html-svg-2d-javascript/deepseek-v4.1-flash.html` | 章鱼骑自行车（单文件 HTML SVG 2D 动画，带播放/速度控制；后续在同一会话里修了触手路径、围巾遮挡、曲柄转向） | DeepSeek V4.1 Flash（`opencode-go`） | 2026-10-15 |
 
 提示词原文未存档，上面写的是任务要点；早期的同类产物（`index.html`、`octopus-bike.html`）没有入库，只留在 `AGENTS.md` 的历史记录里。
 
