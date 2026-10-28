@@ -3,7 +3,7 @@
 这个文件夹放的是**在沙箱里实测过**的知识：踩过的坑、验证过的命令、搞清楚的机制。**不限于 Git / GitHub** —— 任何领域、任何工具、任何流程都往这里收，成不成类只看有没有第二个同类文件。
 不是教程搬运，每条结论都对应一次实际执行。
 
-唯一的例外是 `reading-notes/`：用户要求归档的读书/史料笔记，不属于实测，内容按原文保留，核对范围在各自文件开头写明。
+例外只有两类，都在文件开头写明核对范围：`reading-notes/`（用户要求归档的读书/史料笔记，按原文保留）和 `sensenova-skills/`（读上游源码得出的能力速查，标了 `[源码]` 的条目没在本机实跑）。
 
 ## 怎么用
 
@@ -33,6 +33,7 @@
 | `planning-capabilities/` | 从想法到计划的 14 个能力：`/weigh`、`/plan-feature`、`/craft-goal` 三个 OpenChamber 命令，加上 config / OMO 的 skill，按"卡在哪一步"分流 |
 | `reading-notes/` | 读书/史料笔记（非实测）：《卫国那些事儿》与《左传》引文核对 |
 | `session-provenance/` | 从 `opencode.db` 回溯某文件是哪个模型、哪次会话产出的（相似度比对、multi-run worktree 的过滤坑） |
+| `sensenova-skills/` | SenseNova-Skills 图像能力速查（读源码得出，非实跑）：五个 skill 分层、三个生图后端的端点与响应形态、配置优先级与 `.env` 查找顺序、六条坑（21:9 / 4K / 改图锁模型 / 空转参数 / 配额 / 水印），以及"Windows 不必上 WSL2"的本机实测纠正 |
 | `vscode/` | VS Code 1.143：harness（Copilot/本地）两套 agent 与指令来源、Copilot Chat 内置包与旧条目边界、关掉内置 chat 扩展的联动与界面变化、BYOK 覆盖范围与语义索引来源、OpenCode 模型接入；扩展禁用/卸载与更新残留、键位覆盖与组合键陷阱、补全折叠与语言服务边界、GitHub 集成边界、光标字体 Profile 等设置坑 |
 
 ## 写作纪律（重要）
