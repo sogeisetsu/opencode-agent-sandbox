@@ -77,6 +77,20 @@ Disabling AI features because builtin chat extension is disabled
 
 扩展自己的定位（readme 原文）：`This extension provides chat, agent tool calls, and utility-model access; it does not replace standard Copilot autocomplete.`
 
+## 多个补全 provider 并存时谁赢（查源码）
+
+1.143 bundle 里 `provideInlineCompletions` 的调度：
+
+- 请求**并发**发出，结果按**返回顺序**合并：`Om.fromPromisesResolveOrder(s.map(...))`。所以"谁先返回"只决定合并顺序，不是最终答案。
+- 存在 `groupId` / `yieldsToGroupIds` 的**让行机制**：provider 可声明让给另一组，被让组已给出同内容建议时前者不重复；代码会检测让行关系成环并抛 `inline completions: cyclic yield-to dependency detected`。
+- 这套让行是内置 provider 在用；**扩展通过公开 API（`registerInlineCompletionItemProvider`）注册时没有对应参数**，也没有面向用户的"优先级"设置。默认显示哪条取决于返回顺序 + 让行关系。
+- 有 `editor.action.inlineSuggest.showNext` / `showPrevious` 两个命令可在候选间切换，默认未绑键。
+- `groupId` 存在于内部，但源码里没有名为 `providerGroupId` 的东西（该词 0 命中）。
+
+## 300ms 是防抖阈值，不是轮询间隔
+
+`inlineSuggestionsDebounceMs` 默认 300（可调 50–2000）。语义是"最后一次按键后静置 300ms 触发一次请求"，不是"每 300ms 发一次"。同一组里还有 `TimeoutMs`(3000)、`MaxTokens`(128)、`PrefixLines`(10)、`SuffixChars`(300)。
+
 ## 收残留 UI 的键位（已验证存在于 1.143 bundle）
 
 | 目标 | 设置 |
