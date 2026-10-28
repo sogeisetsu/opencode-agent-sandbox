@@ -27,7 +27,21 @@ multi-run 在工作树里跑完后，只把最终产物按上面的命名拷进�
 | `pelican-bike/deepseek-v4.1-flash-1017.html` | 鹈鹕骑自行车（单文件 HTML 演示） | DeepSeek V4.1 flash 1017 | 2026-10 | — |
 | `pelican-bike/minimax-m3.1-flash-free.html` | 鹈鹕骑自行车（单文件 HTML 演示，带播放/速度控制） | MiniMax M3.1 Flash Free | 2026-10 | — |
 | `html-svg-2d-javascript/deepseek-v4.1-flash.html` | 章鱼骑自行车（单文件 HTML SVG 2D 动画，带播放/速度控制；后续在同一会话里修了触手路径、围巾遮挡、曲柄转向） | DeepSeek V4.1 Flash（`opencode-go`） | 2026-10-15 | `ses_ec06d2736ffe5Semt6V4cHioyb` |
+| `pelican-bike-basic-prompt/iceman-contributor-free.html` | 鹈鹕骑自行车，一句话提示词；首版是静态 SVG，用户要求后才追加 CSS 动画 | Iceman Contributor Free（`opencode-go`） | 2026-10-28 | `ses_e7d52818bffeZZeOZOBqe6ZWDU` |
 
-提示词原文未存档，上面写的是任务要点；同一次章鱼任务里其他模型的产出（`octopus-bike.html` 等）没有入库。
+提示词原文未存档（上表写的是任务要点），只有 `pelican-bike-basic-prompt/` 这一条存了原文：
 
-产物之间的横向对比结论不放在这里，见 [`../knowledge/eval-comparison/鹈鹕骑自行车-两版实现与性能对比.md`](../knowledge/eval-comparison/鹈鹕骑自行车-两版实现与性能对比.md)。
+```
+Generate an HTML file that renders an SVG of a pelican riding a bicycle
+```
+
+（同一会话里追加的两句：「你那个文件并没有看到呀」——只贴代码未落盘；「这应该是一个动画呀」——补动画。）
+
+`pelican-bike/` 与 `pelican-bike-basic-prompt/` 是两套不同提示词的产物，别混着比：前者产出的两版都自带控制面板与丰富场景，后者是"一句话要求"的下限样本。
+
+同一次章鱼任务里其他模型的产出（`octopus-bike.html` 等）没有入库。
+
+产物之间的横向对比结论不放在这里，见：
+
+- [`../knowledge/eval-comparison/鹈鹕骑自行车-两版实现与性能对比.md`](../knowledge/eval-comparison/鹈鹕骑自行车-两版实现与性能对比.md)
+- [`../knowledge/eval-comparison/鹈鹕骑自行车-Iceman版动画失效与验证方法.md`](../knowledge/eval-comparison/鹈鹕骑自行车-Iceman版动画失效与验证方法.md)
