@@ -10,6 +10,7 @@ agent: build
 3. 写文件：文件名自解释；每条结论标 **已验证** / **推测**；命令优先只读版，破坏性命令写清风险与前置检查。
 4. 脱敏扫描用 grep 模式跑，不靠肉眼：账号名、邮箱、仓库 URL、本机绝对路径、token 及其派生物，一律换成 `<owner>/<repo>`、`<path>`、`~/.config/<app>`。
 5. 更新 `knowledge/README.md` 目录表；新增类别必加一行。
-6. `git status --short` → `git add` → 提交（`docs(knowledge): …`）→ `git push origin main`，然后贴出 `git status --short` 与 `git log --oneline -1` 的真实输出。
+6. `git status --short` → `git add` → 提交（`docs(knowledge): …`），然后贴出 `git status --short` 与 `git log --oneline -1` 的真实输出。
+7. 推送只看当前分支：在主仓库 `main` 上才 `git push origin main`；当前分支是模型分支（`<任务名>/<model-slug>`）时**只提交、不推送**，把提交留给用户回收。
 
 不要：整篇搬教程、写没实测过的结论、往 `knowledge/` 放评测产物（那是 `evals/`）。
