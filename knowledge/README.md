@@ -32,6 +32,7 @@
 | `opencode-v2/` | OpenCode V2 的分发（CLI/Desktop 两条线、Windows 装 Desktop 不带终端命令）、三端一服务架构、web UI 认证与端口、V1/V2 源码对照纠错、插件注册工具的实际 API（无工具文件形态、`ctx.tool.transform`、schema 三选一、发现路径与单文件限制） |
 | `planning-capabilities/` | 从想法到计划的 14 个能力：`/weigh`、`/plan-feature`、`/craft-goal` 三个 OpenChamber 命令，加上 config / OMO 的 skill，按"卡在哪一步"分流 |
 | `reading-notes/` | 读书/史料笔记（非实测）：《卫国那些事儿》与《左传》引文核对 |
+| `review-commands/` | 三种审查命令的分工：`/review` 是引擎内置（模板在源码里，界面改不了），`/handoff-review`、`/workspace-review` 是宿主魔法提示词（可改）；附命令来源的核对方法 |
 | `session-provenance/` | 从 `opencode.db` 回溯某文件是哪个模型、哪次会话产出的（相似度比对、multi-run worktree 的过滤坑） |
 | `sensenova-skills/` | SenseNova-Skills 图像能力速查（读源码得出，非实跑）：五个 skill 分层、三个生图后端的端点与响应形态、配置优先级与 `.env` 查找顺序、六条坑（21:9 / 4K / 改图锁模型 / 空转参数 / 配额 / 水印），以及"Windows 不必上 WSL2"的本机实测纠正 |
 | `vscode/` | VS Code 1.143：harness（Copilot/本地）两套 agent 与指令来源、Copilot Chat 内置包与旧条目边界、关掉内置 chat 扩展的联动与界面变化、BYOK 覆盖范围与语义索引来源、OpenCode 模型接入；扩展禁用/卸载与更新残留、键位覆盖与组合键陷阱、补全折叠与语言服务边界、GitHub 集成边界、光标字体 Profile 等设置坑 |
