@@ -38,6 +38,7 @@
 | `session-provenance/` | 从 `opencode.db` 回溯某文件是哪个模型、哪次会话产出的（相似度比对、multi-run worktree 的过滤坑） |
 | `sensenova-skills/` | SenseNova-Skills 图像能力速查（读源码得出，非实跑）：五个 skill 分层、三个生图后端的端点与响应形态、配置优先级与 `.env` 查找顺序、六条坑（21:9 / 4K / 改图锁模型 / 空转参数 / 配额 / 水印），以及"Windows 不必上 WSL2"的本机实测纠正 |
 | `vscode/` | VS Code 1.143：harness（Copilot/本地）两套 agent 与指令来源、Copilot Chat 内置包与旧条目边界、关掉内置 chat 扩展的联动与界面变化、BYOK 覆盖范围与语义索引来源、OpenCode 模型接入；扩展禁用/卸载与更新残留、键位覆盖与组合键陷阱、补全折叠与语言服务边界、GitHub 集成边界、光标字体 Profile 等设置坑 |
+| `workbuddy/` | WorkBuddy 桌面与同源 CLI：两侧技能/记忆/连接器隔离、内置工具与技能的区别、场景路由与输出形态、自定义模型热加载与协议边界、专家包结构、会话目录编码与 JSONL 结构、`/compact` 与 `/总结` 三种触发路径 |
 
 ## 写作纪律（重要）
 
