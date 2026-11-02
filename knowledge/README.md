@@ -17,6 +17,8 @@
 
 | 子文件夹 | 讲什么 |
 |---|---|
+| `agent-config-layers/` | 指令的四种注入时机（常驻/条件/按需/角色）、Copilot 与 OpenCode 的路径对照、为什么「glob vs 目录」的说法不准确、叠加不等于覆盖 |
+| `github-agent-stack/` | GitHub agent 的四层可安装物（内置命令/扩展/skill/MCP）、`gh skill` 版本门槛、官方 MCP 的工具集与只读开关、CLI 与 MCP 的选型判据、gh-aw 的编译式工作流与 safe-outputs |
 | `git-worktree/` | 工作树的原理、删除、被占用排查 |
 | `git-branch/` | 分支删除、安全边界（什么时候会真的丢东西） |
 | `git-remote/` | 本地目录名与远程仓库名的关系、首次推送全流程 |

@@ -66,6 +66,8 @@ Explore 是子 agent，不占下拉位置，由主 agent 派出去；在 `handof
 - **指令不影响行内补全**，只管 chat / agent。
 - 用户级指令放在 harness 目录下（`~/.copilot/instructions`、`~/.claude/rules`）**不随 Settings Sync 漫游**。
 
+跨工具的成本模型（常驻 / 条件 / 按需 / 角色）与 OpenCode 路径对照，见 `../agent-config-layers/指令注入的四种时机-跨工具对照.md`。
+
 ## 管理界面
 
 命令面板 → `Chat: Open Customizations`（界面上叫"智能体自定义"）。左侧：Overview / 插件 / MCP 服务器 / 技能 / 指令 / 智能体 / 钩子 / 提示。
