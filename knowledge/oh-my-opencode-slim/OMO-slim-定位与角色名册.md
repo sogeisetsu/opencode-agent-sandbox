@@ -17,15 +17,14 @@
 
 > 验证方式（只读）：对上面目录里的 `dist/server/index.js` 直接 `Select-String` 关键词即可定位到定义处，代码里带 `// src/xxx.ts` 的原始路径注释，很好对号入座。
 
-## 内置角色：9 个
+## 内置角色：8 个
 
-`ALL_AGENT_NAMES = ["orchestrator", ...SUBAGENT_NAMES]`，`SUBAGENT_NAMES` 共 8 个，加主角 orchestrator 就是 9 个：
+`ALL_AGENT_NAMES = ["orchestrator", ...SUBAGENT_NAMES]`，`SUBAGENT_NAMES` 共 7 个，加主角 orchestrator 就是 8 个（3.0.5 / 3.0.6 实测；`librarian` 已并入 `explorer`，见下）：
 
 | 角色 | 类型 | 说明 |
 |---|---|---|
 | `orchestrator` | 主 agent | 编排者：规划、分派、监控、汇总；不是默认实现工 |
-| `explorer` | 子 agent | 只读侦察：定位代码、并行搜索、给地图 |
-| `librarian` | 子 agent | 外部文档/网页研究：易变 API、版本行为、官方示例 |
+| `explorer` | 子 agent | 只读侦察：定位代码、并行搜索、给地图；`librarian` / `explore` 都是它的旧别名 |
 | `oracle` | 子 agent | 架构/风险/调试策略/评审；**是升级手段，不是默认验证步骤** |
 | `designer` | 子 agent | 独占 UI/UX：布局、层级、间距、动效、响应式 |
 | `fixer` | 子 agent | 有界实现：多文件、机械性改动、可并行的分片活 |
@@ -34,7 +33,7 @@
 | `councillor` | 子 agent | Council 席位基类，运行时按席位展开成 `councillor-<席位名>` |
 
 - `PROTECTED_AGENTS = new Set(["orchestrator", "councillor"])`：这两个**不能**被 `disabled_agents` 停用（写入会被过滤掉）。注意 `council` 本身**不在**保护名单里，可以被停用。
-- 子 agent 工厂 `SUBAGENT_FACTORIES` 覆盖 8 个：explorer / librarian / oracle / designer / fixer / observer / council / councillor。
+- 子 agent 工厂 `SUBAGENT_FACTORIES` 覆盖 7 个：explorer / oracle / designer / fixer / observer / council / councillor。
 - `observer` 默认是关的：`DEFAULT_DISABLED_AGENTS = ["observer"]`。要让 `disabled_agents` 生效为"全开"，得显式把它设成 `[]`。
 
 ## 模型解析顺序（`getModelForAgent`）
@@ -94,5 +93,5 @@ flowchart TD
 
 ## 已验证 / 推测
 
-- **已验证**：归属（插件非宿主）、9 个角色名、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→explorer 特例（`librarian` / `explore` 是它的旧别名）、随包 skill 清单（**v3.0.4 复核：8 个，`loop-engineering` 已移除**）——全部对着 `dist/server/index.js` 读出来的。
+- **已验证**：归属（插件非宿主）、8 个角色名（`SUBAGENT_NAMES` 7 个 + orchestrator；3.0.5 / 3.0.6 均无 `librarian`）、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→explorer 特例（`librarian` / `explore` 是它的旧别名）、随包 skill 清单（**v3.0.4 复核：8 个，`loop-engineering` 已移除**）——全部对着 `dist/server/index.js` 读出来的。
 - **推测**：当顶层 `agents.council.model` 与所选预设里的 `council.model` **同时**存在时的最终胜出者（合并/再施加两处逻辑并存），建议落地后实机确认生效模型，不要只凭推断。
