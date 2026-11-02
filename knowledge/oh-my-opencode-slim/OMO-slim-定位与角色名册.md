@@ -72,13 +72,16 @@ flowchart TD
 
 ## 角色分工要点（编排器提示词里的 routing block 原文缩编）
 
-- explorer：只读侦察（glob/grep/AST）。分派：发现、并行搜索、汇总地图；不分派：已知路径 / 需要完整内容 / 马上要改。
-- librarian：外部文档与网页研究。分派：易变 API、版本相关行为、官方示例、疑难 bug。
-- oracle：架构、风险、调试策略、评审；**升级手段而非默认验证**。
-- designer：独占所有 UI/UX；编排器不要自己做界面。它弱在文案，收尾时由编排器复核文案但不改视觉。
-- fixer：有界、定义清晰的实现；多文件或机械改动、按区域并行。
-- observer：分析图片/PDF/图，把媒体字节挡在上下文外；**永远传完整文件路径**。
-- council：高风险决策的多模型共识；**从不是任务上唯一的 lane**，且不是例行工作。
+3.0.5 / 3.0.6 的 `ROLE_ROUTING_SLIM_LINES` 只有 6 行（`explorer` / `oracle` / `designer` / `fixer` / `council` / `observer`）；`librarian` 的活已经并进 `@explorer`：
+
+- explorer：只读侦察（glob/grep/AST）**加上**外部文档 / 网页研究（context7、gh_grep）。分派：探索、并行搜索、易变 API、官方示例、疑难 bug；不分派：已知路径 / 需要完整内容 / 上下文里已有的事实 / 你自己就会的库知识。
+- oracle：架构、风险、调试策略、评审；**是升级手段，不是默认验证步骤**。分派：长期决策、修了两次以上仍不好的问题、高风险取舍、简化；不分派：例行判断、赶时间的判断。
+- designer：独占所有 UI/UX（布局、层级、间距、动效、响应式），编排器**不要自己做界面**。弱在文案：收尾时由编排器复核并改用户可见文案，但不改视觉；纯机械的后续交给 `@fixer`。
+- fixer：有界、定义明确的实现。分派：多文件或机械改动、按区域并行的分片；不分派：探索 / 决策、单处 20 行以内的小改、需要设计判断的活、基于已有上下文就能写的文档与文案。
+- council：高风险决策的多模型共识；送整段问题加背景，保留它给的结构化报告。不分派：例行工作、只涉及单一专长的任务；**从不是任务上唯一的 lane**。
+- observer：分析图片 / PDF / 图表，把媒体字节挡在上下文外；**永远传完整文件路径**。不分派：纯文本文件。
+
+`routingBlock: false` 会把整个 `<Agents>` 块从内置编排器提示词里去掉；被 `disabled_agents` 停用的角色本来就不出现在这块里（`renderRoutingLines` 按 `disabledAgents` 过滤）。用 `orchestrator.md` 覆盖整份提示词时，这个开关无效。
 
 ## 随包附带的 skill
 
@@ -93,5 +96,5 @@ flowchart TD
 
 ## 已验证 / 推测
 
-- **已验证**：归属（插件非宿主）、8 个角色名（`SUBAGENT_NAMES` 7 个 + orchestrator；3.0.5 / 3.0.6 均无 `librarian`）、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→explorer 特例（`librarian` / `explore` 是它的旧别名）、随包 skill 清单（**v3.0.4 复核：8 个，`loop-engineering` 已移除**）——全部对着 `dist/server/index.js` 读出来的。
+- **已验证**：归属（插件非宿主）、8 个角色名（`SUBAGENT_NAMES` 7 个 + orchestrator；3.0.5 / 3.0.6 均无 `librarian`）、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→explorer 特例（`librarian` / `explore` 是它的旧别名）、routing block 的 6 行原文与 `disabled_agents` / `routingBlock: false` 的过滤、随包 skill 清单（**v3.0.4 复核：8 个，`loop-engineering` 已移除**）——全部对着 `dist/server/index.js` 读出来的。
 - **推测**：当顶层 `agents.council.model` 与所选预设里的 `council.model` **同时**存在时的最终胜出者（合并/再施加两处逻辑并存），建议落地后实机确认生效模型，不要只凭推断。
