@@ -96,5 +96,5 @@ flowchart TD
 
 ## 已验证 / 推测
 
-- **已验证**：归属（插件非宿主）、8 个角色名（`SUBAGENT_NAMES` 7 个 + orchestrator；3.0.5 / 3.0.6 均无 `librarian`）、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→explorer 特例（`librarian` / `explore` 是它的旧别名）、routing block 的 6 行原文与 `disabled_agents` / `routingBlock: false` 的过滤、随包 skill 清单（**v3.0.4 复核：8 个，`loop-engineering` 已移除**）——全部对着 `dist/server/index.js` 读出来的。
+- **已验证**：归属（插件非宿主）、8 个角色名（`SUBAGENT_NAMES` 7 个 + orchestrator；3.0.5 / 3.0.6 均无 `librarian`）、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→explorer 特例（`librarian` / `explore` 是它的旧别名）、routing block 的 6 行原文与 `disabled_agents` / `routingBlock: false` 的过滤、随包 skill 清单（**3.0.5 / 3.0.6 实测：11 个**）——全部对着 `dist/server/index.js` 读出来的。
 - **推测**：当顶层 `agents.council.model` 与所选预设里的 `council.model` **同时**存在时的最终胜出者（合并/再施加两处逻辑并存），建议落地后实机确认生效模型，不要只凭推断。
