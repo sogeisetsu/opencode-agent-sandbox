@@ -41,14 +41,35 @@
 
 给某个 agent 定最终模型时，按这个顺序（源码 `createAgents`）：
 
-1. 该 agent 覆盖层里的 `model`（顶层 `agents.<name>.model` 与所选预设里的 `<name>.model` 会先合并成一份覆盖）。
-2. 没有 `model` 时看 `inheritModelFrom`：
-   - `inheritModelFrom: "orchestrator"` → 用 orchestrator 的模型；
-   - `inheritModelFrom: "session"` → 用会话当前模型（`/model` 所选）。
-3. 特例：`fixer` 未显式给 model 时，**回落到 librarian 的模型**（`librarian.model` 取数组则取第一个）。
-4. 都没有 → 用 `primaryModel`（会话模型）；再没有才用各角色内置默认。
+```mermaid
+flowchart TD
+    S["入口：agents.&lt;name&gt;<br/>与所选预设先合并成一份覆盖"]
+    A{"覆盖里有 model 吗"}
+    M["直接用它<br/>字符串，或数组 = 兜底链"]
+    B{"配了 inheritModelFrom 吗"}
+    C["用 orchestrator 的模型"]
+    D["用会话当前模型<br/>（/model 所选）"]
+    E{"是 fixer 吗"}
+    F["回落 librarian 的模型<br/>数组则取第一个"]
+    G["primaryModel（会话模型）<br/>再没有才用内置默认"]
+    Z["注册阶段再施加一次<br/>model/variant（presetForAgent）"]
 
-另外注册阶段还会用预设再施加一次 model/variant（`presetForAgent`）。因此"顶层 `agents` 覆盖"与"预设覆盖"谁最终胜出，取决于合并实现，**别只凭读代码下结论**——见下节"已验证/推测"。
+    S --> A
+    A -->|"有"| M
+    A -->|"没有"| B
+    B -->|"orchestrator"| C
+    B -->|"session"| D
+    B -->|"没配"| E
+    E -->|"是"| F
+    E -->|"否"| G
+    F --> G
+    M --> Z
+    C --> Z
+    D --> Z
+    G --> Z
+```
+
+因此"顶层 `agents` 覆盖"与"预设覆盖"谁最终胜出，取决于合并实现，**别只凭读代码下结论**——见下节"已验证/推测"。
 
 ## 角色分工要点（编排器提示词里的 routing block 原文缩编）
 

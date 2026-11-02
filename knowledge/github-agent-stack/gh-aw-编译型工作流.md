@@ -8,6 +8,31 @@
 
 gh-aw 的做法：**人写自然语言源文件，工具编译成标准 Actions YAML**。人读的和机器跑的分开，后者不手改。
 
+```mermaid
+flowchart TD
+    subgraph HUMAN["人写（手改这一侧）"]
+        MD["&lt;name&gt;.md<br/>frontmatter + Markdown 正文"]
+    end
+    subgraph TOOL["gh aw"]
+        CMP["gh aw compile<br/>校验语法与权限声明"]
+    end
+    subgraph CI["GitHub Actions"]
+        LOCK["&lt;name&gt;.lock.yml<br/>机器生成，不手改"]
+        AJ["agent job<br/>只读访问 + 沙箱"]
+        BUF["safe-outputs 缓冲区<br/>只能「提议」"]
+        WJ["独立 job<br/>受限权限执行写"]
+    end
+    OUT["落到 issue / PR / 仓库"]
+
+    MD --> CMP
+    CMP --> LOCK
+    LOCK --> AJ
+    AJ -->|"提议写操作"| BUF
+    BUF -->|"校验通过"| WJ
+    WJ --> OUT
+```
+
+
 - 仓库：`github/gh-aw`，description `GitHub Agentic Workflows`，MIT（`gh api repos/github/gh-aw` 实测）。
 - 安装：`gh extension install github/gh-aw`（README Quick Start 原文）。所以它是**扩展**，属于 `gh` CLI 层，不是 MCP。
 

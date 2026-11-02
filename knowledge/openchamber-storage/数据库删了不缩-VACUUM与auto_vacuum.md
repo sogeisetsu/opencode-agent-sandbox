@@ -57,6 +57,29 @@ FROM part GROUP BY t ORDER BY 3 DESC;
 
 ## 收缩流程（破坏性，按顺序做）
 
+```mermaid
+flowchart TD
+    A["1 完全退出应用<br/>托盘退出，别只停后台服务"]
+    B["2 备份 .db 到另一块盘"]
+    C["3 收缩到同目录新文件<br/>python db-vacuum.py 源库 新库"]
+    D{"要顺便开自动收缩吗"}
+    D1["在新库上 PRAGMA auto_vacuum=FULL<br/>紧跟一次 VACUUM，否则等于没设"]
+    E["4 校验：integrity ok<br/>+ 新旧库 session / message / part 计数一致"]
+    F["5 同卷替换：先挪走 .db<br/>再把 -wal 和 -shm 一起挪走"]
+    G["6 启动应用抽查老会话<br/>稳定几天再删 .old"]
+    X["旧 -wal 套到新库上 = 全程唯一真正有破坏力的动作"]
+
+    A --> B
+    B --> C
+    C --> D
+    D -->|"是（第三个参数加 autovacuum）"| D1
+    D -->|"否"| E
+    D1 --> E
+    E --> F
+    F --> G
+    F -.-> X
+```
+
 本机（Windows）默认**没有 `sqlite3` CLI**，`Get-Command sqlite3` 无结果；用 Python 自带的 `sqlite3` 模块。下面两个脚本存成文件再跑，别在 `python -c` 里塞长代码（PowerShell 会拆引号）。
 
 `db-inspect.py`（只读巡检，随时能跑）：

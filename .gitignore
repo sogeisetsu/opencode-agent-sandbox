@@ -17,5 +17,8 @@ Desktop.ini
 tmp/
 temp/
 
+# OpenChamber 本地产物（截图等），不入库
+.openchamber/
+
 # Stack-specific rules: tell me the language/framework and I'll add them here
 # (node_modules/, dist/, __pycache__/, target/, bin/, obj/, vendor/, ...)

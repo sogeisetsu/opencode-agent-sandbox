@@ -1,10 +1,42 @@
 # OMO slim 的 Council：多模型共识是怎么跑起来的
 
-> 流程图：[`Council-派发流程.excalidraw`](./Council-派发流程.excalidraw)（OpenChamber 的 Files 视图点开就是画布）
+> 手绘版派发流程：[`Council-派发流程.excalidraw`](./Council-派发流程.excalidraw)（OpenChamber 的 Files 视图点开就是画布；精确时序见下面这张 Mermaid 图）
 
 ## 一句话
 
 Council 是 OMO slim **内置**的一套"多个异构模型各自独立作答、再由一个合成器收敛"的机制；它由 **orchestrator 派发**，不是自己去跑。
+
+## 一次 Council 的时序
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 用户消息
+    participant H as council-inject
+    participant O as orchestrator
+    participant C as 席位 α…δ
+    participant S as 合成器
+
+    U->>H: 剥掉代码块后匹配
+    Note over H: 四个条件全中才注入
+    alt 条件不满足
+        H-->>U: 不注入（零成本）
+    else 四个条件全满足
+        H->>O: 注入 Council 流程纸
+        par 并行派发
+            O->>C: task α
+            O->>C: task β
+            O->>C: task γ
+            O->>C: task δ
+        end
+        C-->>O: 各自独立作答
+        O->>S: 汇总各席位回答
+        S-->>O: 三段式报告
+        O-->>U: 最终回复
+    end
+```
+
+要点：真正**派发**的是 orchestrator（用它自己的 subagent 工具），Council 自己不派发；席位是只读顾问，合成器连 `read` 都没有。
 
 ## 归属与启用条件
 
