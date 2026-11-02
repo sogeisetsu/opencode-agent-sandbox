@@ -36,8 +36,6 @@ sequenceDiagram
     end
 ```
 
-要点：真正**派发**的是 orchestrator（用它自己的 subagent 工具），Council 自己不派发；席位是只读顾问，合成器连 `read` 都没有。
-
 ## 归属与启用条件
 
 - 归属：OMO slim 内置，非 OpenCode 本体（见 `OMO-slim-定位与角色名册.md` 的验证方式）。

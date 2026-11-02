@@ -50,8 +50,8 @@ flowchart TD
     C["用 orchestrator 的模型"]
     D["用会话当前模型<br/>（/model 所选）"]
     E{"是 fixer 吗"}
-    F["回落 librarian 的模型<br/>数组则取第一个"]
-    G["primaryModel（会话模型）<br/>再没有才用内置默认"]
+    F["回落 explorer 的模型<br/>librarian / explore 是旧别名"]
+    G["primaryModel（会话模型）<br/>再没有才用内置默认（fixer 取 explorer 的）"]
     Z["注册阶段再施加一次<br/>model/variant（presetForAgent）"]
 
     S --> A
@@ -94,5 +94,5 @@ flowchart TD
 
 ## 已验证 / 推测
 
-- **已验证**：归属（插件非宿主）、9 个角色名、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→librarian 特例、随包 skill 清单（**v3.0.4 复核：8 个，`loop-engineering` 已移除**）——全部对着 `dist/server/index.js` 读出来的。
+- **已验证**：归属（插件非宿主）、9 个角色名、`PROTECTED_AGENTS`、`DEFAULT_DISABLED_AGENTS=["observer"]`、`AGENT_ALIASES`、`getModelForAgent` 顺序、fixer→explorer 特例（`librarian` / `explore` 是它的旧别名）、随包 skill 清单（**v3.0.4 复核：8 个，`loop-engineering` 已移除**）——全部对着 `dist/server/index.js` 读出来的。
 - **推测**：当顶层 `agents.council.model` 与所选预设里的 `council.model` **同时**存在时的最终胜出者（合并/再施加两处逻辑并存），建议落地后实机确认生效模型，不要只凭推断。

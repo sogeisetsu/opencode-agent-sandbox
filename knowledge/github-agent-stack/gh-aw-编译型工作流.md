@@ -32,7 +32,6 @@ flowchart TD
     WJ --> OUT
 ```
 
-
 - 仓库：`github/gh-aw`，description `GitHub Agentic Workflows`，MIT（`gh api repos/github/gh-aw` 实测）。
 - 安装：`gh extension install github/gh-aw`（README Quick Start 原文）。所以它是**扩展**，属于 `gh` CLI 层，不是 MCP。
 
