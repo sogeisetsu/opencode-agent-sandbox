@@ -18,6 +18,16 @@
 - 用户说"push"时先看当前分支：模型分支按约定不推，主仓库 `main` 的推送由用户决定。
 - 在工作树里跑 `/knowledge-ingest` 时，第 6 步的 `git push origin main` 不适用 —— 只提交本分支。
 
+## 开发流程
+
+在主仓库里做实质改动（新增 skill / 命令、调整目录结构、成篇文档）都按这个走；`knowledge/` 单条笔记这种一次性小提交可以直接进 `main`。
+
+1. **先开分支**：`git switch -c <类型>/<主题>`，别在 `main` 上写东西。类型用 `feat` / `fix` / `docs` / `chore`。
+2. **按章节提交**：每完成一个能自洽的单元就提交一次，一个提交干一件事。别攒成一个巨型提交。
+3. **收尾合并再推送**：分支上的任务全部完成并提交后，切回 `main` → `git merge --no-ff <branch>` → `git push origin main` → 删本地分支。
+4. 例外：multi-run 工作树里的模型分支不合并、不推送，见上一节。
+5. 合并前自检：`git status --short` 干净，`git log --oneline` 上每一步看得懂。
+
 ## 环境
 
 - Windows + PowerShell 7。**主仓库**路径含空格：`E:\opencode agents\test`（命令加引号或 `-LiteralPath`）；工作树路径 `~/.local/share/opencode/worktree/<repo-hash>/<dir>` 不含空格。
