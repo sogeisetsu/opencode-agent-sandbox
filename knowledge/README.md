@@ -22,13 +22,13 @@
 | `git-worktree/` | 工作树的原理、删除、被占用排查 |
 | `git-branch/` | 分支删除、安全边界（什么时候会真的丢东西） |
 | `git-remote/` | 本地目录名与远程仓库名的关系、首次推送全流程 |
-| `github-credentials/` | 凭据存在哪、怎么只读定位、怎么轮换；SQLite WAL 是什么 |
+| `github-credentials/` | 一份凭据扩散到哪几处、怎么只读地查（只比长度 + 哈希前缀，不打印明文）、轮换顺序；本沙箱真实踩过的掩码事故 |
 | `github-cli/` | `gh` 命令速查与排查 |
 | `github-code-search/` | 公开代码搜索（grep.app 类工具）能干什么、不能干什么 |
 | `chrome-devtools-mcp/` | Chrome DevTools MCP：抢前台与后台开页面、rAF 节流、用 trace 量动画每帧开销、SVG 局部/全局坐标互量 |
 | `eval-comparison/` | 同一任务下多个模型产物的横向对比结论（先例：两个鹈鹕骑自行车动画的实现与性能；追加：Iceman 版"轮子绕画布中心公转"等三处硬伤与验证方法） |
 | `oh-my-opencode-slim/` | OMO slim 插件：角色名册、配置 schema、Council 多模型共识机制、生成的 preset 与 provider 来源、随包 11 个 skill 全表（含估工/防照抄/收手三个行为约束型） |
-| `openchamber-storage/` | 粘贴图片存文件还是 base64 落库、数据库删了为什么不缩（freelist/VACUUM/auto_vacuum）、收缩流程与风险 |
+| `openchamber-storage/` | 本地库的存储机制与体积：`-wal`/`-shm` 是什么与为什么不能手删、删了为什么不缩（freelist/VACUUM/auto_vacuum）、收缩流程与风险、粘贴图片存文件还是 base64 落库 |
 | `opencode-host/` | 托管 OpenCode CLI 怎么定位、有哪些子命令、PATH 里同名 V1 的辨识、托管配置文件 |
 | `opencode-provider/` | provider 从哪来（内置 catalog 三层来源）、凭据归谁（opencode-go 与 opencode 同身份）、端点（zen/inference 同网关）、配置块作为覆盖层删了会怎样、OpenChamber 怎么管 provider |
 | `opencode-v2/` | OpenCode V2 的分发（CLI/Desktop 两条线、Windows 装 Desktop 不带终端命令）、三端一服务架构、web UI 认证与端口、V1/V2 源码对照纠错、插件注册工具的实际 API（无工具文件形态、`ctx.tool.transform`、schema 三选一、发现路径与单文件限制）、技能发现与 Skill Bundle（嵌套分组、单文件技能、frontmatter 真实约束、主从代理编排） |

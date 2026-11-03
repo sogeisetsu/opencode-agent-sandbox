@@ -38,4 +38,6 @@ ls -l <db>.db <db>-wal <db>-shm      # main 通常很大，wal 是"还没合并�
 
 WAL 会把写入放大成多份副本：同一段内容可能同时出现在 `.db`、`.db-wal`（还有 free pages 里的残留）。所以清理凭据残留时，**主库和 WAL 要一起考虑**，且必须先停进程再动。
 
-free pages 里为什么会有残留、以及怎么用 VACUUM 把它们挤掉，见 `openchamber-storage/数据库删了不缩-VACUUM与auto_vacuum.md`。
+free pages 里为什么会有残留、以及怎么用 VACUUM 把它们挤掉，见 [`数据库删了不缩-VACUUM与auto_vacuum.md`](./数据库删了不缩-VACUUM与auto_vacuum.md)。
+
+反过来，WAL 也是**凭据副本**的常见漏网点：你在对话或命令输出里打印过的东西，可能同时躺在 `.db` 和 `.db-wal` 里。一份 token 扩散到了哪几处、怎么只读地定位、轮换按什么顺序做，见 [`../github-credentials/凭据定位与轮换-副本追踪.md`](../github-credentials/凭据定位与轮换-副本追踪.md)。
