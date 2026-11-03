@@ -2,6 +2,8 @@
 
 现象：把聊天记录删了很多，本地库文件（`~/.local/share/opencode/opencode.db`）大小一点没变。
 
+> 库里三个文件（`.db` 主库 / `-wal` 未合并增量 / `-shm` 共享内存索引）各是什么、为什么不能手删 `-wal`，见 [`sqlite-wal-是什么.md`](./sqlite-wal-是什么.md)。
+
 ## 先看清现状（只读）
 
 ```sql
@@ -29,7 +31,7 @@ FROM part GROUP BY t ORDER BY 3 DESC;
 - **行确实被删掉了**：会话删除是硬删除加级联，`session` / `message` / `part` 都没有 `time_deleted` 之类的软删除字段；实测删除后孤立的 `part`、`message` 计数都是 0。
 - **文件不会缩小**：SQLite 默认只把腾出来的页登记进 **freelist**，文件高水位不动。要缩得把尾部之后的页全往前搬，它不做。
 - freelist 里的空页**可以被任意新页复用**，不限于原来那种数据。所以"只删不增"不会让文件继续涨，但也不会回落；增长来自后续新增内容。
-- 空页里的**旧字节仍在文件里**，有被恢复出来的可能（隐私层面要单独考虑，见 `github-credentials/sqlite-wal-是什么.md`）。
+- 空页里的**旧字节仍在文件里**，有被恢复出来的可能（隐私层面要单独考虑，见 `sqlite-wal-是什么.md`）。
 
 ## VACUUM 做什么
 
@@ -134,7 +136,7 @@ chk.close()
    foreach ($s in '-wal','-shm') { if (Test-Path -LiteralPath "$db$s") { Move-Item -LiteralPath "$db$s" "$db$s.old" } }
    Move-Item -LiteralPath "$db.new.db" $db
    ```
-   **`-wal` 和 `-shm` 必须一起挪走**——旧 WAL 套到新库上是整个流程唯一真正有破坏力的点（详见 `github-credentials/sqlite-wal-是什么.md`）。
+   **`-wal` 和 `-shm` 必须一起挪走**——旧 WAL 套到新库上是整个流程唯一真正有破坏力的点（详见 `sqlite-wal-是什么.md`）。
 6. 启动应用抽查几个老会话，稳定几天再删 `.old`。
 
 预期：空闲页占比高时，体积能掉到活跃数据的量级。
