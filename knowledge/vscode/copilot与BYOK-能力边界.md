@@ -25,13 +25,7 @@ Copilot 已合并为**单个内置扩展**：包名 `copilot-chat`，显示名 G
 - 全局版 `extensions.disableAIGlobally` → `configurationService.updateValue("chat.disableAIFeatures", true)`
 - 工作区版 `extensions.disableAIInWorkspace` → `extensionsWorkbenchService.setEnablement(extension, 11)` + `updateRunningExtensions(...)`，**没有一次 updateValue**
 
-落盘位置：
-
-```
-%APPDATA%\Code\User\workspaceStorage\<hash>\state.vscdb
-```
-
-键：`extensionsIdentifiers/disabled`，值形如 `[{"id":"github.copilot-chat","uuid":"..."}]`；启用回来则记在 `extensionsIdentifiers/enabled`。
+所以它和"在扩展页禁用一个扩展"落点是同一处（工作区存储的 SQLite 库，键 `extensionsIdentifiers/disabled`）——路径、键名和其他想错的地方见 [`扩展管理-禁用卸载与残留清理.md`](./扩展管理-禁用卸载与残留清理.md)，本篇不复述。
 
 后果：不跟仓库走、换机器/重新 clone 不带走、无法提交给同事。想让设置跟着仓库走只能手写 `.vscode/settings.json` 的 `chat.disableAIFeatures`。
 
@@ -149,20 +143,16 @@ Disabling AI features because builtin chat extension is disabled
 
 `chat.disableAIFeatures: true` 会让 BYOK 一起不可用；第三方扩展（如 OpenChamber）不受影响。
 
-## harness 是运行时，不是模型
-
-可选 harness：Copilot（Agent Host，关窗仍跑）、Local（扩展宿主，关窗即停）、Cloud、Claude、Codex。切 harness 会换掉 agent 列表、工具集和会话生命周期 —— 模型没变但行为会变，原因就在这。
-
 ## 模型默认值分几处写
 
 - `chat.defaultModel`、`chat.planAgent.defaultModel`、`chat.exploreAgent.defaultModel` → 用**限定名**（vendor/modelId）
 - `chat.utilityModel`、`chat.utilitySmallModel` → 用 `vendor/modelId` 形式
 - 嫌分开配麻烦：`chat.byokUtilityModelDefault: "mainAgent"`，utility 直接复用主 agent 的模型
 
-## 指令文件
+## 提交信息语言
 
-- 用户级全量：`~/.copilot/copilot-instructions.md`
-- 用户级按范围匹配：`~/.copilot/instructions/*.instructions.md`（按 `applyTo`）
-- 项目级：`AGENTS.md` 或 `.github/copilot-instructions.md`
-- **不影响行内补全**，只管 chat / agent。
-- 提交信息语言由 `github.copilot.chat.commitMessageGeneration.instructions` 控制，与 utility 模型无关。
+由 `github.copilot.chat.commitMessageGeneration.instructions` 控制，与 utility 模型无关。
+
+## 本篇不回答的部分
+
+**harness 是运行时不是模型**、可选哪几套 harness，以及**指令文件放在哪**（`~/.copilot/copilot-instructions.md`、`~/.copilot/instructions/*.instructions.md`、`.github/copilot-instructions.md`、`applyTo` 匹配、指令之间没有优先级）—— 都归 [`harness-两套agent与指令来源.md`](./harness-两套agent与指令来源.md)。本篇只回答"换模型能换掉什么、换不掉什么"。
