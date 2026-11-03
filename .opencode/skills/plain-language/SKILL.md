@@ -4,11 +4,9 @@ description: 把看不懂的文章、概念、术语堆砌的说明或一段代�
 license: MIT
 compatibility: opencode
 metadata:
-  author: 穆天膳
+  author: sogeisetsu
   version: "1.1.0"
-  upstream: WorkBuddy plain-language 1.0.1
-  category: writing
-  source: 田紫薇 / 穆天膳，MIT
+  based_on: 田紫薇 / 穆天膳 plain-language 1.0.1，MIT
 ---
 
 # 说人话（plain-language）
@@ -54,7 +52,7 @@ metadata:
 
 ### 图表
 
-需要图示时才画。写进仓库的 markdown 按那个仓库的图表规范来（本机项目默认 Mermaid，见仓库 `AGENTS.md`）；只在对话里输出的示意才用纯文本字符画。没有好图示就不画——图不能替解释挡枪。
+需要图示时才画，动手前先看输出目标那边有没有现成的图表规范：写进别人的仓库或文档站就跟着那边的来，别自创一套。哪里都没规矩时，markdown 里用 Mermaid（GitHub 直接渲染、能 diff），对话窗口里才轮到纯文本字符画。没有好图示就不画——图不能替解释挡枪。
 
 ## 红线（每条必须过，顺序即优先级）
 
@@ -83,6 +81,14 @@ metadata:
 - *故事* — 一个具体的人遇到一个具体的问题。读者跟着走
 - *反问入链* — 遇到隐含前提，用问题打开，然后回答它
 - *骨架图* — 概念涉及空间关系时，嵌入一段纯文本图示
+
+## 工具
+
+OpenCode 不读 `allowed-tools`，能干什么只能靠这段字约束。
+
+- 只读：`read`（本地文件）、`webfetch`（URL）、`websearch`（书名 / 论文 / 背景）、`grep`（在仓库里定位代码片段）
+- 不写：默认不碰 `write` / `edit` / `bash`，结果是给人读的一篇文章，回对话里就完事。用户明确要求存档，才按他给的路径写
+- 工具不是必需品：解释概念、改写已有文本，一个工具都不调也能做完
 
 ## 执行
 
