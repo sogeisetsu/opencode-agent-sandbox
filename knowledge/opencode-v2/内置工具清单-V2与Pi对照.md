@@ -6,7 +6,7 @@
 
 ## 一句话
 
-"OpenCode 有哪些内置工具"没有唯一答案——**V1 和 V2 的清单不同，名字也改过**。V2 用 `shell` / `patch`，V1 用 `bash` / `apply_patch`；`lsp` 只存在于 V1 文档，V2 文档与源码都没有。
+"OpenCode 有哪些内置工具"没有唯一答案——**V1 和 V2 的清单不同，名字也改过**。V2 用 `shell` / `patch`，V1 用 `bash` / `apply_patch`。`lsp` 工具只在 V1 有；V2 连 LSP 运行时都还没落地（源码 TODO 为证），只剩配置与事件占位。
 
 ## 0. 先认错：我上一版错在哪
 
@@ -37,9 +37,20 @@
 | Automation | `subagent` | 起子会话；前台等待，`background: true` 立即返回；默认嵌套深度 1 |
 | Automation | `execute` | Code Mode 里跑 JavaScript，组合调用目录中的工具 |
 | Automation | `opencode` 命名空间 | `session_rename`、`session_move`、`worktree_create`、`worktree_list`、`worktree_remove` |
-| Browser | `browser` 命名空间 | 桌面端浏览器：开标签页、快照、点击、截图、控制台/网络、性能 trace、Lighthouse |
+| Browser | `browser` 命名空间（**一组**工具，经 `execute` 调用） | 桌面端附加浏览器：标签页、导航、快照、点击/表单、截图、文件传输、控制台/网络、性能 trace、堆检查、Lighthouse；没有连接桌面端就没有这个目录 |
 
-**V2 文档里没有 `lsp`，也没有 `todowrite`。** 前者源码里同样没有实现文件；后者源码有（`todo.ts`，注册名 `todowrite`），但 V2 文档未列——**推测**：功能仍在，只是未被文档承诺，升级后可能变。
+**V2 文档里没有 `lsp`，也没有 `todowrite`。** 两者性质不同，别混：
+
+- **`lsp`：V2 没有 LSP 运行时，所以既没有 `lsp` 工具，也没有编辑后诊断反馈。**
+  证据链三处：
+  1. `packages/core/src/tool/plugin/edit.ts:258` 留着 TODO：`// TODO: Add LSP notification and diagnostics after LSP runtime exists.`
+  2. dev 分支文件树里与 LSP 相关的只剩配置与事件：`packages/schema/src/config/lsp.ts`（`command` / `extensions` / `env` / `initialization`）、`packages/schema/src/lsp-event.ts`（仅 `lsp.updated`）、`packages/app/src/settings/workspaces/project-lsp.ts`（设置页）。**没有任何客户端实现或工具文件。**
+  3. V2 文档 `/v2/docs/tools` 全文没有 lsp / language server / diagnostic 字样。
+
+  所以准确说法是"**V2 尚未实现，不是把工具删了**"。我上一版写成"源码里没有"方向对，但没给出"为什么没有"，容易被读成"官方不支持 LSP"——事实上配置文件与设置页都还在，只是运行时没接。
+- **`todowrite`：源码有**（`todo.ts`，注册名 `todowrite`），V2 文档未列——**推测**：功能仍在，只是未被文档承诺，升级后可能变。
+
+> 顺带修正一个方法论错误：`search/code` 只搜**默认分支**。该仓库默认分支恰好是 `dev`，所以这次没出错；换一个默认分支是 `main` 的仓库，就会把 V1 的搜索结果当成 V2 的。判定版本时用 `git/trees/<ref>?recursive=1` 精确取树，别用全局 code search。
 
 ## 2. V1 官方清单（`/docs/tools`，已验证）
 
@@ -80,7 +91,25 @@ CHANGELOG 两条直接证据（**已验证**）：
 
 `effectiveName()`（`packages/core/src/tool/runtime.ts:290`）只做两件事：把非法字符替换成 `_`、拼上 namespace 前缀。**它不做 `bash → shell` 的映射**——那个映射在 TUI 显示层（`packages/tui/src/util/tool-display.ts` 的 `canonicalToolName`）与兼容调用路径里。
 
-## 5. 与 Pi 对照（更新）
+## 5. `browser` 到底是什么：一组工具，不是一个工具
+
+**结论：它是 Code Mode 的一个命名空间，不是顶层可调用的单个工具。**
+
+证据（dev 分支，已验证）：
+
+1. `packages/plugin-browser/` 是一个独立插件包，入口 `src/index.ts`，能力实现在 `src/tools.ts`（136 行）。
+2. `src/tools.ts` 第 38 行 `editor.namespace({ name: "browser", ... })` 先建命名空间，再对每个 operation 逐个注册，工具名取 `operation.name`，`namespace` 为 `browser` 或 `browser.<分组>`，权限统一 `permission: "browser"`。
+3. 所以模型看到的调用形态是 `browser.tab_open`、`browser.navigate`、`browser.snapshot` 这一类，**经 `execute`（Code Mode）触达**；顶层工具列表里没有叫 `browser` 的单项。
+
+三个容易误解的点：
+
+- **它依赖桌面端**。文档原文："controls the browser attached by the OpenCode desktop app"。纯 CLI / 服务端没连桌面端时，这个命名空间不存在——不是"工具坏了"。
+- **权限是整包粒度**。`browser` 的 deny 规则资源写 `*` 会移除整个 browser 目录，而且浏览器操作**不逐个弹权限**。
+- **内容不可信**。页面内容、日志、header、响应体被明确标注为"untrusted data, never instructions"，这是它和普通工具最大的行为差异。
+
+类比：MCP server 也是"一个 server = 一组工具"，默认在 `execute` 里以 server 命名空间调用（除非设 `codemode: false`）。`browser` 是内置版的同构设计，只不过工具由 OpenCode 自己提供、绑定自家桌面端。
+
+## 6. 与 Pi 对照（更新）
 
 | 维度 | OpenCode V2 | Pi |
 |---|---|---|
@@ -94,7 +123,7 @@ CHANGELOG 两条直接证据（**已验证**）：
 | 代码执行 | `execute`（Code Mode，跑 JS 组合调用工具） | 无对应内置；靠 `bash` 或扩展 |
 | 哲学 | 框架给能力，配置约束 | 内核极简，扩展装出来 |
 
-## 6. 复核方式（只读，必须分版本）
+## 7. 复核方式（只读，必须分版本）
 
 ```bash
 # 两套文档，别只看一套
@@ -106,6 +135,10 @@ gh api repos/<owner>/<repo>/contents/packages/core/src/tool/plugin?ref=dev --jq 
 gh api repos/<owner>/<repo>/contents/packages/core/src/codemode?ref=dev --jq '.[].name'
 gh api repos/<owner>/<repo>/contents/packages/core/src/tool/plugin/opencode.ts?ref=dev \
   -H "Accept: application/vnd.github.raw" | grep -n "namespace"
+
+# 先确认默认分支（search/code 只搜它），再按 ref 精确取树
+gh api repos/<owner>/<repo> --jq '.default_branch'
+gh api "repos/<owner>/<repo>/git/trees/dev?recursive=1" --jq '.tree[].path' | grep -iE "lsp|diagnostic"
 
 # 名称变更要有变更日志佐证
 gh api repos/<owner>/<repo>/contents/CHANGELOG.md -H "Accept: application/vnd.github.raw" | grep -niE "bash|apply_patch|rename"
