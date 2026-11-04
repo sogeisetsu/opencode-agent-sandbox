@@ -48,15 +48,36 @@ graph TD
 - `reviewdog` 常被误当成 AI 审查工具。它的价值是**把已有工具的输出规范化贴回 diff**，AI 与非 AI 都能接。
 - `brooks-lint` 是 **Skill** 形态（给 Codex / Cursor / Copilot / OpenCode 之类宿主用），不是独立服务；它依赖宿主提供模型与文件访问。
 
-## 2. 未核实的条目
+## 2. 复检：那批"只听到名字"的项目
 
-以下在对话里被提到，但本次用 GitHub 检索**没有定位到可确认的仓库**，因此不写特性、不写星数：
+2026-11-05 用 `gh search repos` 重查了一遍。结论分三类，**别把二三类当成一类用**。
 
-- `ai-code-review-mcp`、`local-pr-reviewer`、`jev-review`、Endor Labs MCP
-- `create-code-reviewer`、`code-review-agent-skill`（aictrl.dev 的 `code-review`）
-- `opencode-power-pack`、`copilot-second-opinion`
+### 找到且可用（星数已核对）
 
-用之前先确认：仓库地址、最近提交时间、许可证。**"某处看到一个名字"不等于它可安装可用**。
+| 项目 | 仓库 | 星数 | 实际是什么 |
+|---|---|---:|---|
+| opencode-power-pack | `waybarrios/opencode-power-pack` | 550 | 55 个 skill，支持 Codex / OpenCode 1.18.7 与 2.x / Pi；README 称 v0.5.0 起带 opt-in 沙箱（macOS Seatbelt、Linux Bubblewrap，四个最小权限 profile，fail-closed） |
+| jev-review | `devagrawal09/jev-review` | 696 | 分阶段审查工作流 + 本地 dashboard；另有同名 MCP 插件 `NiazMorshed2007/jev-review`（248★），**两者不是同一个项目** |
+
+`opencode-power-pack` 的两点限制（README 原文口径）：沙箱只承诺**命令及其子进程**被 shell 隔离，"自动宿主路由与整机隔离尚未声称"；原生隔离只提 macOS / Linux，**Windows 未提**——按"未提即不支持"推断，属**推测**。
+
+### 存在但极小（能装，别当方案）
+
+| 项目 | 仓库 | 星数 | 备注 |
+|---|---|---:|---|
+| local-pr-reviewer | `nartc/local-pr-reviewer` | 3 | tmux 里跑本地 PR 审查 |
+| copilot-second-opinion | `Adamkadaban/copilot-second-opinion` | 1 | OpenCode skill + MCP，驱动 GitHub Copilot 的 PR 审查循环 |
+| create-code-reviewer | `kokorolx/create-code-reviewer` | 0 | 生成审查 skill 的 skill |
+
+这类项目的价值是**读它的提示词结构**，不是直接上生产。0–3 星意味着几乎没有外部用户踩过坑。
+
+### 仍未定位到同名仓库
+
+- `ai-code-review-mcp`（检索只返回 `code-review-graph`、`jev-review` 等近似项）
+- `code-review-agent-skill`（只有 `win4r/agent-skills-code-review-router` 等近似名）
+- Endor Labs MCP（厂商产品，GitHub 上没有对应开源仓库）
+
+**判据**：名字能在对话里传播，不等于仓库存在。真要用，必须补三件事——仓库地址、最近推送时间、许可证；缺一项就先别写进方案。
 
 ## 3. 选型判据
 
