@@ -46,3 +46,4 @@ Generate an HTML file that renders an SVG of a pelican riding a bicycle
 
 - [`../knowledge/eval-comparison/鹈鹕骑自行车-两版实现与性能对比.md`](../knowledge/eval-comparison/鹈鹕骑自行车-两版实现与性能对比.md)
 - [`../knowledge/eval-comparison/鹈鹕骑自行车-Iceman版动画失效与验证方法.md`](../knowledge/eval-comparison/鹈鹕骑自行车-Iceman版动画失效与验证方法.md)
+- [`../knowledge/eval-comparison/鹈鹕骑自行车-混元4版实测与四版对比.md`](../knowledge/eval-comparison/鹈鹕骑自行车-混元4版实测与四版对比.md)

@@ -123,3 +123,5 @@ const c = g => { const r = g.getBoundingClientRect(); return [r.x + r.width/2, r
 2. SVG 元素上加 CSS `transform`/`transform-origin`，先确认 `transform-box`，再量元素屏幕坐标是否漂移。
 3. 任何 `from`/`to` + `infinite` 的位移，都要在接缝处采样一帧。
 4. "写了动画" ≠ "动了"：本例里 `.wheel` / `.bike` 两条规则都生效，但效果是坏的，静态检查（属性存在、类名对上）全部通过。
+5. 同一句提示词的第四版（混元 4）把上面三处硬伤全部规避，且运动学自洽（曲柄/车轮周期比、地面/轮面速度比均为 1.000）：改用显式 `rotate(deg cx cy)` 轮心与连续距离取模，可作为「正确实现」的对照；实测与四版对照见
+   [`./鹈鹕骑自行车-混元4版实测与四版对比.md`](./鹈鹕骑自行车-混元4版实测与四版对比.md)。
