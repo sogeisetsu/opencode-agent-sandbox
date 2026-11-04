@@ -6,7 +6,7 @@
 
 ## 一句话
 
-"OpenCode 有哪些内置工具"没有唯一答案——**V1 和 V2 的清单不同，名字也改过**。V2 用 `shell` / `patch`，V1 用 `bash` / `apply_patch`。`lsp` 工具只在 V1 有；V2 连 LSP 运行时都还没落地（源码 TODO 为证），只剩配置与事件占位。
+"OpenCode 有哪些内置工具"没有唯一答案——**V1 和 V2 的清单不同，名字也改过**。V2 用 `shell` / `patch`，V1 用 `bash` / `apply_patch`。LSP 是另一类差异：V1 有实验性 `lsp` 工具，V2 保留配置但不跑服务器、不暴露工具、不产诊断，改用项目的 lint/typecheck/compiler；`todowrite` 则两版都有定义，但 V2 **默认关闭**，要 `experimental.todo: true`。
 
 ## 0. 先认错：我上一版错在哪
 
@@ -15,6 +15,8 @@
 1. **只看了一个目录**：Code Mode 的 `execute` 在 `packages/core/src/codemode/`，`opencode` 命名空间（`session_*`、`worktree_*`）由 `plugin/opencode.ts` 一个文件注册多个工具，`browser` 命名空间也不在 plugin 目录。
 2. **没区分文档版本**：`/docs/tools` 是 V1，`/v2/docs/tools` 是 V2。直接拿 V1 文档对 V2 源码，会得出"文档说有的源码没有"这种假矛盾。
 3. **把"内部注册名"当成"唯一合法名"**：V2 确实把 `bash` 路由到 `shell`、把 `apply_patch` 权限归并到 `edit`，但**兼容输入仍然有效**，所以不能推出"写 `bash: false` 不生效"。
+4. **把并列事实写成了因果**：LSP 那条，官方是并列声明"不跑服务器 / 不暴露工具 / 不产诊断"，我写成"因为没有运行时，所以没有工具"——原因是我自己补的。
+5. **漏了开关**：`todowrite` 不是"文档没列但功能还在"，而是**默认关闭**，要 `experimental.todo: true` 才注册。我只查了"源码有没有定义"，没查"运行时会不会注册"。
 
 这三个坑正好对应 `源码对照与旧结论纠错.md` 里那两条教训：**在一个包里搜不到 ≠ 不存在**；**否定判断有保质期**。
 
@@ -39,18 +41,60 @@
 | Automation | `opencode` 命名空间 | `session_rename`、`session_move`、`worktree_create`、`worktree_list`、`worktree_remove` |
 | Browser | `browser` 命名空间（**一组**工具，经 `execute` 调用） | 桌面端附加浏览器：标签页、导航、快照、点击/表单、截图、文件传输、控制台/网络、性能 trace、堆检查、Lighthouse；没有连接桌面端就没有这个目录 |
 
-**V2 文档里没有 `lsp`，也没有 `todowrite`。** 两者性质不同，别混：
+### 1.1 LSP：官方口径是"保留配置，不做三件事"
 
-- **`lsp`：V2 没有 LSP 运行时，所以既没有 `lsp` 工具，也没有编辑后诊断反馈。**
-  证据链三处：
-  1. `packages/core/src/tool/plugin/edit.ts:258` 留着 TODO：`// TODO: Add LSP notification and diagnostics after LSP runtime exists.`
-  2. dev 分支文件树里与 LSP 相关的只剩配置与事件：`packages/schema/src/config/lsp.ts`（`command` / `extensions` / `env` / `initialization`）、`packages/schema/src/lsp-event.ts`（仅 `lsp.updated`）、`packages/app/src/settings/workspaces/project-lsp.ts`（设置页）。**没有任何客户端实现或工具文件。**
-  3. V2 文档 `/v2/docs/tools` 全文没有 lsp / language server / diagnostic 字样。
+权威原文来自 **V2 迁移指南**（`/v2/docs/migrate-v1/`，已验证）：
 
-  所以准确说法是"**V2 尚未实现，不是把工具删了**"。我上一版写成"源码里没有"方向对，但没给出"为什么没有"，容易被读成"官方不支持 LSP"——事实上配置文件与设置页都还在，只是运行时没接。
-- **`todowrite`：源码有**（`todo.ts`，注册名 `todowrite`），V2 文档未列——**推测**：功能仍在，只是未被文档承诺，升级后可能变。
+> "V2 accepts and preserves `lsp` configuration, but it does not run language servers, expose LSP tools, or produce LSP diagnostics. Replace workflows that depend on those capabilities with the project's lint, typecheck, or compiler commands."
 
-> 顺带修正一个方法论错误：`search/code` 只搜**默认分支**。该仓库默认分支恰好是 `dev`，所以这次没出错；换一个默认分支是 `main` 的仓库，就会把 V1 的搜索结果当成 V2 的。判定版本时用 `git/trees/<ref>?recursive=1` 精确取树，别用全局 code search。
+拆成四层看，比"支持/不支持"这种二分准确得多：
+
+| 层面 | V2 的行为 | 证据 |
+|---|---|---|
+| 配置 | **接受并保留** `lsp` 块，不报错 | 迁移指南原文 |
+| 运行时 | **不启动** language server | 同上 |
+| 工具 | **不暴露** LSP 工具 | 同上 |
+| 诊断 | **不产生** LSP 诊断（编辑后不会把类型错误喂回给模型） | 同上 |
+| 替代方案 | 让 agent 跑项目自己的 lint / typecheck / compiler 命令 | 同上 |
+
+源码侧的现象与这条口径一致，但**只是现象，不是原因**：
+
+- `packages/core/src/tool/plugin/edit.ts:258` 有 TODO：`// TODO: Add LSP notification and diagnostics after LSP runtime exists.`
+- dev 树里与 LSP 相关的只剩配置（`schema/config/lsp.ts`）、事件（`lsp-event.ts`，仅 `lsp.updated`）、设置页（`app/.../project-lsp.ts`），没有工具实现文件。
+
+**我之前错在因果**：把"官方并列声明的三条事实"（不跑服务器、不暴露工具、不产诊断）写成了"因为没有运行时，所以没有工具"。官方并没有解释原因，也没有说"工具文件不该存在"；它只声明了行为边界。从"运行时缺失"推到"工具不存在"是我自己加的因果链，这一步不成立。
+
+更准确的一句话：**V2 在接口层不提供 LSP 工具，并把诊断职责外移给项目的 lint/typecheck/compiler**；V1 才有实验性 `lsp` 工具（`OPENCODE_EXPERIMENTAL_LSP_TOOL=true`）。
+
+### 1.2 `todowrite`：源码有定义，但**默认不注册**
+
+这条我上一版写"功能仍在，只是文档未列"，**结论过于乐观，需要收回**。真实机制是"插件被加载 + 插件内部有条件返回"：
+
+官方 V2 配置文档（`/v2/docs/config#todos`，已验证）：
+
+> "Set `todo` to `true` to give agents a `todowrite` tool for tracking multi-step work. **Defaults to `false`.**"
+
+源码三处对应（dev 分支，已验证）：
+
+1. `packages/schema/src/config/experimental.ts:12`：`todo: Schema.Boolean ... "Enable the experimental todowrite tool. Defaults to false."`
+2. `packages/core/src/plugin/internal.ts:92, 277`：`import { TodoTool } ...` 且 `TodoTool.Plugin` 确实在内部插件列表里——**插件被加载**。
+3. `packages/core/src/tool/plugin/todo.ts:50, 54`：
+   ```ts
+   const enabled = () => Config.latest(loaded.entries, "experimental")?.todo === true
+   ...
+   if (!enabled()) return
+   ```
+   **插件加载 ≠ 工具注册**：开关为 false 时直接返回，`todowrite` 不会进入模型可见的工具目录。
+
+开启方式：
+
+```jsonc
+{ "experimental": { "todo": true } }
+```
+
+所以"V2 的运行时工具清单里没有 todo writer"这个观察是**对的**，原因是默认关闭，而不是定义缺失。社区也确实有恢复插件（`lcagustini/opencode2-todo`、`gabparrot/opencode2-todo-tool` 已标 DEPRECATED、`ckir/opencode2` 是其 fork，星数均为 0）——但**先用官方开关，别急着装插件**。
+
+> 方法论教训：**"源码里有定义"和"运行时注册到工具清单"是两个验证层**。前者用 `git/trees` + 读文件，后者只能靠实跑或官方文档的清单。我上一版在源码层严谨、在运行时层越级，这是这次最该记住的一条。
 
 ## 2. V1 官方清单（`/docs/tools`，已验证）
 
@@ -129,6 +173,14 @@ CHANGELOG 两条直接证据（**已验证**）：
 # 两套文档，别只看一套
 #   V1: https://opencode.ai/docs/tools
 #   V2: https://opencode.ai/v2/docs/tools
+#   V2 迁移指南（LSP 口径在这里）: https://opencode.ai/v2/docs/migrate-v1/
+#   V2 配置页（experimental.todo 在这里）: https://opencode.ai/v2/docs/config#todos
+
+# 默认开关要读实现，不能只看文件是否存在
+gh api repos/<owner>/<repo>/contents/packages/core/src/tool/plugin/todo.ts?ref=dev \
+  -H "Accept: application/vnd.github.raw" | grep -n "enabled\|return"
+gh api repos/<owner>/<repo>/contents/packages/schema/src/config/experimental.ts?ref=dev \
+  -H "Accept: application/vnd.github.raw" | grep -n -A2 "todo"
 
 # 源码侧：工具目录 + 命名空间注册
 gh api repos/<owner>/<repo>/contents/packages/core/src/tool/plugin?ref=dev --jq '.[].name'

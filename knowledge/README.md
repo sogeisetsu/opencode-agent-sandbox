@@ -31,7 +31,7 @@
 | `openchamber-storage/` | 本地库的存储机制与体积：`-wal`/`-shm` 是什么与为什么不能手删、删了为什么不缩（freelist/VACUUM/auto_vacuum）、收缩流程与风险、粘贴图片存文件还是 base64 落库 |
 | `opencode-host/` | 托管 OpenCode CLI 怎么定位、有哪些子命令、PATH 里同名 V1 的辨识、托管配置文件 |
 | `opencode-provider/` | provider 从哪来（内置 catalog 三层来源）、凭据归谁（opencode-go 与 opencode 同身份）、端点（zen/inference 同网关）、配置块作为覆盖层删了会怎样、OpenChamber 怎么管 provider |
-| `opencode-v2/` | OpenCode V2 的分发（CLI/Desktop 两条线、Windows 装 Desktop 不带终端命令）、三端一服务架构、web UI 认证与端口、V1/V2 源码对照纠错、插件注册工具的实际 API（无工具文件形态、`ctx.tool.transform`、schema 三选一、发现路径与单文件限制）、技能发现与 Skill Bundle（嵌套分组、单文件技能、frontmatter 真实约束、主从代理编排）、Desktop 代码评论的落点（composer/note）与"聊天绑定 session"的定位、内置工具的实际注册名（`shell` / `patch`）与 V1 清单的差异（`bash` 会被路由到 `shell`、`apply_patch` 权限并入 `edit`、`lsp` 工具仅 V1 有）、V2 的 LSP runtime 尚未实现（源码 TODO 为证）、`browser` 是 Code Mode 命名空间而非单个工具，以及与 Pi 对照 |
+| `opencode-v2/` | OpenCode V2 的分发（CLI/Desktop 两条线、Windows 装 Desktop 不带终端命令）、三端一服务架构、web UI 认证与端口、V1/V2 源码对照纠错、插件注册工具的实际 API（无工具文件形态、`ctx.tool.transform`、schema 三选一、发现路径与单文件限制）、技能发现与 Skill Bundle（嵌套分组、单文件技能、frontmatter 真实约束、主从代理编排）、Desktop 代码评论的落点（composer/note）与"聊天绑定 session"的定位、内置工具的实际注册名（`shell` / `patch`）与 V1 清单的差异（`bash` 会被路由到 `shell`、`apply_patch` 权限并入 `edit`）、LSP 的官方口径（保留配置、不跑服务器、不暴露工具、不产诊断，改用 lint/typecheck）、`todowrite` 默认关闭需 `experimental.todo`、`browser` 是 Code Mode 命名空间而非单个工具，以及与 Pi 对照 |
 | `planning-capabilities/` | 从想法到计划的 14 个能力：`/weigh`、`/plan-feature`、`/craft-goal` 三个 OpenChamber 命令，加上 config / OMO 的 skill，按"卡在哪一步"分流；另附上游的 `enhance-prompt` 三种形态（命令型 skill / 可安装 skill 包 / 插件）判据 |
 | `reading-notes/` | 读书/史料笔记（非实测）：《卫国那些事儿》与《左传》引文核对 |
 | `review-commands/` | 三种审查命令的分工：`/review` 是引擎内置（模板在源码里，界面改不了），`/handoff-review`、`/workspace-review` 是宿主魔法提示词（可改）；附命令来源的核对方法；以及会话内让 agent 自查改动的三种提示词写法与四个必加约束 |
