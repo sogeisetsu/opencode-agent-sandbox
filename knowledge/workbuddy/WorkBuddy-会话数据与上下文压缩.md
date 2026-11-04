@@ -94,7 +94,7 @@ python -c "import sqlite3,os; p=os.path.expanduser('~/.workbuddy/workbuddy.db');
 
 压缩结果会替换原有消息，并可能截断工具结果（记录里有 `compactTruncated`、`compactLimitReached`、`compact-cancelled` 等元数据）。
 
-推论（原说法成立）：**长会话里上下文可能被无感知替换**。重要的中间结论、决策理由、验证输出，应该主动写进文件或记忆，而不是只留在对话里。
+推论（原说法成立）：**长会话里上下文可能被无感知替换**。重要的中间结论、决策理由、验证输出，应该主动写进文件或记忆，而不是只留在会话里。
 
 ## 验证记录
 

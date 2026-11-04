@@ -2,23 +2,27 @@
 
 > 核对时间：2026-11-05。
 > 证据三路：官网 V1 文档 `/docs/tools`、官网 V2 文档 `/v2/docs/tools`（**已验证**）、上游 `dev` 分支源码与 `CHANGELOG.md`（**已验证**）。
-> 结论按版本标注；只有单一来源的写 **推测**。
+> 结论按版本标注；只有单一来源的条目标 **推测**。
 
 ## 一句话
 
 "OpenCode 有哪些内置工具"没有唯一答案——**V1 和 V2 的清单不同，名字也改过**。V2 用 `shell` / `patch`，V1 用 `bash` / `apply_patch`。LSP 是另一类差异：V1 有实验性 `lsp` 工具，V2 保留配置但不跑服务器、不暴露工具、不产诊断，改用项目的 lint/typecheck/compiler；`todowrite` 则两版都有定义，但 V2 **默认关闭**，要 `experimental.todo: true`。
 
-## 0. 先认错：我上一版错在哪
+## 0. 三个验证层次，混用就会得出矛盾结论
 
-上一版结论是"19 个工具文件 = 全部内置工具，没有 lsp/find/ls"，依据只有 `packages/core/src/tool/plugin/` 一个目录。三处问题：
+| 层次 | 能回答 | 不能回答 | 怎么查 |
+|---|---|---|---|
+| 官方文档 | 对外承诺的工具名与行为边界 | 当前 dev 分支是否已经改了 | V1 `/docs/tools`、V2 `/v2/docs/tools`、`/v2/docs/migrate-v1/` |
+| 源码树 | 有没有定义、有没有实现 | 运行时是否注册、模型是否可见 | `git/trees/<ref>?recursive=1` + 读文件 |
+| 运行时清单 | 模型实际拿到哪些工具 | 为什么这样设计 | 实跑看 advertised tools，或官方清单 |
 
-1. **只看了一个目录**：Code Mode 的 `execute` 在 `packages/core/src/codemode/`，`opencode` 命名空间（`session_*`、`worktree_*`）由 `plugin/opencode.ts` 一个文件注册多个工具，`browser` 命名空间也不在 plugin 目录。
-2. **没区分文档版本**：`/docs/tools` 是 V1，`/v2/docs/tools` 是 V2。直接拿 V1 文档对 V2 源码，会得出"文档说有的源码没有"这种假矛盾。
-3. **把"内部注册名"当成"唯一合法名"**：V2 确实把 `bash` 路由到 `shell`、把 `apply_patch` 权限归并到 `edit`，但**兼容输入仍然有效**，所以不能推出"写 `bash: false` 不生效"。
-4. **把并列事实写成了因果**：LSP 那条，官方是并列声明"不跑服务器 / 不暴露工具 / 不产诊断"，我写成"因为没有运行时，所以没有工具"——原因是我自己补的。
-5. **漏了开关**：`todowrite` 不是"文档没列但功能还在"，而是**默认关闭**，要 `experimental.todo: true` 才注册。我只查了"源码有没有定义"，没查"运行时会不会注册"。
+三条高频误判：
 
-这三个坑正好对应 `源码对照与旧结论纠错.md` 里那两条教训：**在一个包里搜不到 ≠ 不存在**；**否定判断有保质期**。
+1. **在 `tool/plugin/` 一个目录里数文件**：Code Mode 的 `execute` 在 `codemode/`，`opencode` 与 `browser` 命名空间由单个文件注册多个工具，**目录文件数 ≠ 工具数**。
+2. **混用 V1/V2 文档**：`/docs/tools` 是 V1，`/v2/docs/tools` 是 V2，同一个问题答案不同。
+3. **把"有定义"当成"已注册"**：`todo.ts` 定义了 `todowrite`、插件也被加载，但 `experimental.todo` 默认 false，工具不会进入模型可见目录。
+
+相关的两条通用教训见 `源码对照与旧结论纠错.md`：**在一个包里搜不到 ≠ 不存在**；**否定判断有保质期**。
 
 ## 1. V2 官方清单（`/v2/docs/tools`，已验证）
 
@@ -57,18 +61,18 @@
 | 诊断 | **不产生** LSP 诊断（编辑后不会把类型错误喂回给模型） | 同上 |
 | 替代方案 | 让 agent 跑项目自己的 lint / typecheck / compiler 命令 | 同上 |
 
-源码侧的现象与这条口径一致，但**只是现象，不是原因**：
+源码侧现象与上述口径一致；这些只是实现现状，不能反过来当作设计动机。
 
 - `packages/core/src/tool/plugin/edit.ts:258` 有 TODO：`// TODO: Add LSP notification and diagnostics after LSP runtime exists.`
 - dev 树里与 LSP 相关的只剩配置（`schema/config/lsp.ts`）、事件（`lsp-event.ts`，仅 `lsp.updated`）、设置页（`app/.../project-lsp.ts`），没有工具实现文件。
 
-**我之前错在因果**：把"官方并列声明的三条事实"（不跑服务器、不暴露工具、不产诊断）写成了"因为没有运行时，所以没有工具"。官方并没有解释原因，也没有说"工具文件不该存在"；它只声明了行为边界。从"运行时缺失"推到"工具不存在"是我自己加的因果链，这一步不成立。
+这三项行为（不跑服务器、不暴露工具、不产诊断）是**并列声明，不构成因果链**：官方只划定行为边界，没有解释原因，也没有说工具实现必须不存在。引用时不能自行补写"因为没有运行时，所以没有工具"——那一步没有文档支持。
 
-更准确的一句话：**V2 在接口层不提供 LSP 工具，并把诊断职责外移给项目的 lint/typecheck/compiler**；V1 才有实验性 `lsp` 工具（`OPENCODE_EXPERIMENTAL_LSP_TOOL=true`）。
+准确的一句话：**V2 在接口层不提供 LSP 工具，并把诊断职责外移给项目的 lint/typecheck/compiler**；V1 才有实验性 `lsp` 工具（`OPENCODE_EXPERIMENTAL_LSP_TOOL=true`）。
 
 ### 1.2 `todowrite`：源码有定义，但**默认不注册**
 
-这条我上一版写"功能仍在，只是文档未列"，**结论过于乐观，需要收回**。真实机制是"插件被加载 + 插件内部有条件返回"：
+机制分两层：插件被加载，工具是否注册由开关决定。
 
 官方 V2 配置文档（`/v2/docs/config#todos`，已验证）：
 
@@ -92,9 +96,9 @@
 { "experimental": { "todo": true } }
 ```
 
-所以"V2 的运行时工具清单里没有 todo writer"这个观察是**对的**，原因是默认关闭，而不是定义缺失。社区也确实有恢复插件（`lcagustini/opencode2-todo`、`gabparrot/opencode2-todo-tool` 已标 DEPRECATED、`ckir/opencode2` 是其 fork，星数均为 0）——但**先用官方开关，别急着装插件**。
+所以"V2 的运行时工具清单里没有 todo writer"这个观察是**对的**，原因是默认关闭，而不是定义缺失。社区有恢复插件（`lcagustini/opencode2-todo`、`gabparrot/opencode2-todo-tool` 已标 DEPRECATED、`ckir/opencode2` 是其 fork，星数均为 0），但官方开关已能解决，不需要插件。
 
-> 方法论教训：**"源码里有定义"和"运行时注册到工具清单"是两个验证层**。前者用 `git/trees` + 读文件，后者只能靠实跑或官方文档的清单。我上一版在源码层严谨、在运行时层越级，这是这次最该记住的一条。
+> 验证纪律：**"源码里有定义"和"运行时注册到工具清单"是两个不同的验证层**。前者用 `git/trees` + 读文件即可，后者只能靠实跑或官方清单。只验证前者，会高估一个工具的实际可用性。
 
 ## 2. V1 官方清单（`/docs/tools`，已验证）
 
@@ -108,14 +112,14 @@
 |---|---|---|---|
 | shell | `bash` | `shell` | 写 V2 配置用 `shell`；旧配置里的 `bash` 会被路由（见下），不会报错 |
 | 补丁 | `apply_patch` | `patch` | `apply_patch` 的权限已迁移到 `edit`；hook 里判断工具名要按目标版本写 |
-| 搜索密钥 | 文档称**无需 API key**（走 OpenCode / OpenCode Go 托管服务，或 `OPENCODE_ENABLE_EXA` / `OPENCODE_ENABLE_PARALLEL` 开启） | **五个 provider 各自要 key**：`EXA_API_KEY`、`FIRECRAWL_API_KEY`、`PARALLEL_API_KEY`、`TAVILY_API_KEY`、`TINYFISH_API_KEY`（可选） | 别把 V1 的"免费"套到 V2；V2 要 `/connect` 或设环境变量 |
+| 搜索密钥 | 文档称**无需 API key**（走 OpenCode / OpenCode Go 托管服务，或 `OPENCODE_ENABLE_EXA` / `OPENCODE_ENABLE_PARALLEL` 开启） | **五个 provider 各自要 key**：`EXA_API_KEY`、`FIRECRAWL_API_KEY`、`PARALLEL_API_KEY`、`TAVILY_API_KEY`、`TINYFISH_API_KEY`（可选） | V1 的"免费"不适用于 V2；V2 要 `/connect` 或设环境变量 |
 
 CHANGELOG 两条直接证据（**已验证**）：
 
 - `#60687`：**"Calls to a tool named `bash` now run as `shell` instead of failing, with the same permissions. A plugin tool actually named `bash` still takes precedence."**
 - `#57900`：**"Legacy `apply_patch` permissions now migrate to the `edit` permission."**
 
-所以正确说法是：**V2 的内部规范名是 `shell` / `patch`，但 `bash` 仍是合法调用（会被路由过去，权限相同）**。我上一版"写 `bash: false` 不会关掉它"是错的——它会被规范到 `shell` 再判定。
+结论：**V2 的内部规范名是 `shell` / `patch`，但 `bash` 仍是合法调用（会被路由过去，权限相同）**。因此 `bash: false` 依然有效——它会被规范到 `shell` 再判定。
 
 ## 4. 源码侧：19 个文件不等于 19 个工具
 

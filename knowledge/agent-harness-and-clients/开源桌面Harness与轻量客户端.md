@@ -1,7 +1,7 @@
-# 开源 Agent harness 与轻量客户端：先分清你要哪一层
+# 开源 Agent harness 与轻量客户端：先分清三层
 
 > 核对时间：2026-11-05。仓库存在性、星数、语言、许可证用 `gh api repos/<owner>/<repo>` 实取（**已验证**）。
-> 对话里提到但本次**未能定位公开仓库**的项目，统一放在第 4 节，不写特性。
+> 未能定位到公开仓库的项目统一放在第 4 节，不写特性。
 
 ## 一句话
 
@@ -71,11 +71,11 @@ ZCode 的已知细节（来自仓库 README 与公开报道，**已验证于公�
 
 其中 **Odex** 直接检索为空；其余多为小项目、改名或私有仓库。要用先补三件事：仓库地址、最近提交、许可证。
 
-另有一条**半核实**：`longbkit/clisbot`（130★，TypeScript，仓库描述是 "Agentic Coding CLI & chat bot"）。对话里说它是"Daemon 架构、桌面/Web/移动/CLI 多端、支持 OpenCode/Claude Code/Codex/Pi、Git worktree 并行隔离"——这些细节**仓库描述里没有**，属未核实，别当结论用。
+另有一条**半核实**：`longbkit/clisbot`（130★，TypeScript，仓库描述是 "Agentic Coding CLI & chat bot"）。另有转述称它是"Daemon 架构、桌面/Web/移动/CLI 多端、支持 OpenCode/Claude Code/Codex/Pi、Git worktree 并行隔离"——这些细节**仓库描述里没有**，属未核实。
 
 ## 5. 选型顺序
 
-1. 先问"我要不要它自带运行时"。要 → 第 1 节；不要 → 第 2/3 节。
+1. 先确认是否需要自带运行时。需要 → 第 1 节；不需要 → 第 2/3 节。
 2. 再看"模型从哪来"。harness 通常要你自己配端点或订阅；本地模型优先看 `localharness` 这类明确面向本地的。
 3. 最后看"隔离"。需要沙箱/审批/hook 拦截的，确认目标项目**在 Windows 原生是否支持**；很多方案的沙箱只做了 macOS/Linux。
 
