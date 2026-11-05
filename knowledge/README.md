@@ -26,7 +26,7 @@
 | `github-cli/` | `gh` 命令速查与排查 |
 | `github-code-search/` | 公开代码搜索（grep.app 类工具）能干什么、不能干什么 |
 | `chrome-devtools-mcp/` | Chrome DevTools MCP：抢前台与后台开页面、rAF 节流、用 trace 量动画每帧开销、SVG 局部/全局坐标互量 |
-| `browser-skill/` | BrowserSkill（v1.0.7，`~/.workbuddy/skills/browser-skill/`）扩展的五个快捷功能：视频录制 / 网站调试 / 长截图均有 CLI、操作录制为 `bsk record`、操作审计仅面板入口且文档无章节；附各自的上限与前置（视频 24h 过期、抓包只记开抓之后、长截图不支持嵌套滚动与虚拟列表）；以及为什么 agent 总新开窗口（Agent Window 隔离 + 默认后台新建 + 借用页签三连，确认框不可绕过） |
+| `browser-skill/` | BrowserSkill（v1.0.7，`~/.workbuddy/skills/browser-skill/`）扩展的五个快捷功能：视频录制 / 网站调试 / 长截图均有 CLI、操作录制为 `bsk record`、操作审计仅面板入口且文档无章节；附各自的上限与前置（视频 24h 过期、抓包只记开抓之后、长截图不支持嵌套滚动与虚拟列表）；以及为什么 agent 总新开窗口（Agent Window 隔离 + 默认后台新建 + 借用页签三连，确认框不可绕过）；daemon 篇：`--foreground` 为何必须套宿主后台托管、`BSK_AUTO_START=0` 复用探测、扩展"未连接"的排查顺序与四个误区 |
 | `eval-comparison/` | 同一任务下多个模型产物的横向对比结论（先例：两个鹈鹕骑自行车动画的实现与性能；追加：Iceman 版"轮子绕画布中心公转"等三处硬伤与验证方法；再追加：混元 4 版的传动系自洽性、三层视差无缝与四版横向对照） |
 | `oh-my-opencode-slim/` | OMO slim 插件：角色名册、配置 schema、Council 多模型共识机制、生成的 preset 与 provider 来源、随包 11 个 skill 全表（含估工/防照抄/收手三个行为约束型） |
 | `openchamber-storage/` | 本地库的存储机制与体积：`-wal`/`-shm` 是什么与为什么不能手删、删了为什么不缩（freelist/VACUUM/auto_vacuum）、收缩流程与风险、粘贴图片存文件还是 base64 落库 |
