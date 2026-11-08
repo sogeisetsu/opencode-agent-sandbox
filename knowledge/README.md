@@ -26,6 +26,7 @@
 | `github-cli/` | `gh` 命令速查与排查 |
 | `github-code-search/` | 公开代码搜索（grep.app 类工具）能干什么、不能干什么 |
 | `chrome-devtools-mcp/` | Chrome DevTools MCP：抢前台与后台开页面、rAF 节流、用 trace 量动画每帧开销、SVG 局部/全局坐标互量 |
+| `web-search-mcp/` | 免 Key 搜索的真实形态（端点 + 请求头，三家已实测：Tavily 200 出结果、Exa MCP 返回 `web_search_exa`、TinyFish 带头 200 仅 1 个工具 / 不带头 401）、五个候选项目的覆盖与回退对比、fork `search-rotation-mcp` 补 TinyFish 后的改造清单与验收标准 |
 | `browser-skill/` | BrowserSkill（v1.0.7，`~/.workbuddy/skills/browser-skill/`）扩展的五个快捷功能：视频录制 / 网站调试 / 长截图均有 CLI、操作录制为 `bsk record`、操作审计仅面板入口且文档无章节；附各自的上限与前置（视频 24h 过期、抓包只记开抓之后、长截图不支持嵌套滚动与虚拟列表）；以及为什么 agent 总新开窗口（Agent Window 隔离 + 默认后台新建 + 借用页签三连，确认框不可绕过）；daemon 篇：`--foreground` 为何必须套宿主后台托管、`BSK_AUTO_START=0` 复用探测、扩展"未连接"的排查顺序与四个误区 |
 | `opencode-console/` | opencode.ai/console 的对象模型与页面位置：Member 只含自然人、Service account 是机器身份、Credentials/Active 的读法、`Legacy:` 账号的由来、`Restricted · 1 scope` 与 `All` 两类 key 的风险差异、Activity 四个标签分工；含打码截图 |
 | `eval-comparison/` | 同一任务下多个模型产物的横向对比结论（先例：两个鹈鹕骑自行车动画的实现与性能；追加：Iceman 版"轮子绕画布中心公转"等三处硬伤与验证方法；再追加：混元 4 版的传动系自洽性、三层视差无缝与四版横向对照；再追加：MiMo V2.6 Pro 版实测与五版对比，含「周期比==画出齿比」勘误、两骨 IK 腿与无缝回绕） |
@@ -34,13 +35,14 @@
 | `opencode-host/` | 托管 OpenCode CLI 怎么定位、有哪些子命令、PATH 里同名 V1 的辨识、托管配置文件 |
 | `opencode-provider/` | provider 从哪来（内置 catalog 三层来源）、凭据归谁（opencode-go 与 opencode 同身份）、端点（zen/inference 同网关）、配置块作为覆盖层删了会怎样、OpenChamber 怎么管 provider |
 | `opencode-v2/` | OpenCode V2 的分发（CLI/Desktop 两条线、Windows 装 Desktop 不带终端命令）、三端一服务架构、web UI 认证与端口、V1/V2 源码对照纠错、插件注册工具的实际 API（无工具文件形态、`ctx.tool.transform`、schema 三选一、发现路径与单文件限制）、技能发现与 Skill Bundle（嵌套分组、单文件技能、frontmatter 真实约束、主从代理编排）、Desktop 代码评论的落点（composer/note）与"聊天绑定 session"的定位、内置工具的实际注册名（`shell` / `patch`）与 V1 清单的差异（`bash` 会被路由到 `shell`、`apply_patch` 权限并入 `edit`）、LSP 的官方口径（保留配置、不跑服务器、不暴露工具、不产诊断，改用 lint/typecheck）、`todowrite` 默认关闭需 `experimental.todo`、`browser` 是 Code Mode 命名空间而非单个工具，以及与 Pi 对照 |
+| `deepseek-harness/` | DSH（DeepSeek Harness）：PTC 绑在 preset 上导致「直调还是写脚本」在不可逆时点被决定，正解是在 `dsh-tools` 多注册 `run_code` 普通工具（executor 排他、`ctx.ptcRuntime` 是独立 service、嵌套必须走 pipeline 否则绕过审批）；插件生态的四块原生短板与最小组合，附公共 npm 逐个 HEAD 核对的包名存废表（上游文档给的作用域约一半 404） |
 | `planning-capabilities/` | 从想法到计划的 14 个能力：`/weigh`、`/plan-feature`、`/craft-goal` 三个 OpenChamber 命令，加上 config / OMO 的 skill，按"卡在哪一步"分流；另附上游的 `enhance-prompt` 三种形态（命令型 skill / 可安装 skill 包 / 插件）判据 |
 | `reading-notes/` | 读书/史料笔记（非实测）：《卫国那些事儿》与《左传》引文核对 |
 | `review-commands/` | 三种审查命令的分工：`/review` 是引擎内置（模板在源码里，界面改不了），`/handoff-review`、`/workspace-review` 是宿主魔法提示词（可改）；附命令来源的核对方法；以及会话内让 agent 自查改动的三种提示词写法与四个必加约束 |
 | `session-provenance/` | 从 `opencode.db` 回溯某文件是哪个模型、哪次会话产出的（相似度比对、multi-run worktree 的过滤坑） |
 | `sensenova-skills/` | SenseNova-Skills 图像能力速查（读源码得出，非实跑）：五个 skill 分层、三个生图后端的端点与响应形态、配置优先级与 `.env` 查找顺序、六条坑（21:9 / 4K / 改图锁模型 / 空转参数 / 配额 / 水印），以及"Windows 不必上 WSL2"的本机实测纠正 |
 | `vscode/` | VS Code 1.143：harness（Copilot/本地）两套 agent 与指令来源、Copilot Chat 内置包与旧条目边界、关掉内置 chat 扩展的联动与界面变化、BYOK 覆盖范围与语义索引来源、OpenCode 模型接入；扩展禁用/卸载与更新残留、键位覆盖与组合键陷阱、补全折叠与语言服务边界、GitHub 集成边界、光标字体 Profile 等设置坑 |
-| `workbuddy/` | WorkBuddy 桌面与同源 CLI：两侧技能/记忆/连接器隔离、内置工具与技能的区别、场景路由与输出形态、自定义模型热加载与协议边界、专家包结构、会话目录编码与 JSONL 结构、`/compact` 与 `/总结` 三种触发路径 |
+| `workbuddy/` | WorkBuddy 桌面与同源 CLI：两侧技能/记忆/连接器隔离、内置工具与技能的区别、场景路由与输出形态、自定义模型热加载与协议边界、专家包结构、会话目录编码与 JSONL 结构、`/compact` 与 `/总结` 三种触发路径；记忆机制三条互不同步的链路（云端画像 / 用户级 `~/.workbuddy/` / 项目级 `.workbuddy/memory/`）、谁才叫「自动」、设置面板三项各自的落点、注入优先级（指令→人设→记忆）的措辞依据、两套同名 `MEMORY.md` 的辨识 |
 | `agent-harness-and-clients/` | 开源 Agent 工具的三层判据：自带运行时的 harness（ZCode/NorthCUA/localharness）、多引擎客户端（desktop-cc-gui）、纯前端（OpenCodeUI/官方 web）；未定位到仓库的名单单列，不写特性 |
 | `code-review-tooling/` | 代码审查工具按"审查发生在哪一层"分层（会话/PR/CI/审计），含实测星数与许可证：open-code-review、code-review-graph、PR-Agent、reviewdog、brooks-lint；以及那批"只听到名字"的项目的复检结果（可用 / 极小 / 仍未定位） |
 | `windows-shell-env/` | Windows 上的三层环境：PSReadLine 补全与预测的真实默认值（Tab 是逐项循环、Ctrl+Space 已是菜单补全）、Git Bash 是 MINGW64+MSYS2 而非 Linux、WSL 的 `ext4.vhdx` 与迁移三步、`wslc` 不是「WSL 3」 |

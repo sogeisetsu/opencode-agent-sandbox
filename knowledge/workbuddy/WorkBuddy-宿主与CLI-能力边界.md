@@ -28,6 +28,8 @@ foreach($p in @("$h\skills","$c\skills","$h\MEMORY.md","$c\MEMORY.md","$h\connec
 
 两侧都有 `projects/`、`sessions/`、`logs/`，但内容是分开的。CLI 目录里没有 `skills`、`MEMORY.md`、`connectors`，所以「宿主里装了技能，CLI 就能用」不成立。
 
+`MEMORY.md` 本身怎么被写、被注入、跟云端画像什么关系，见 [记忆机制：三条链路与注入优先级](WorkBuddy-记忆机制-三条链路与注入优先级.md)；本节只讲两侧隔离。
+
 **已验证**：`codebuddy --version` 返回 `2.176.0`；usage 第一行是 `codebuddy|cbc`，说明还有 `cbc` 别名。
 
 ## 纠正：「CLI 不是另一套二进制」
