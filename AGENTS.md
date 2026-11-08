@@ -36,7 +36,7 @@
 ## 环境
 
 - Windows + PowerShell 7。**主仓库**路径含空格：`E:\opencode agents\test`（命令加引号或 `-LiteralPath`）。
-- **工作树**自己建在主仓库之外、路径不含空格的地方（`git worktree add <path> -b <任务名>/<model-slug>`）。历史上一批在 `~/.local/share/opencode/worktree/<repo-hash>/<dir>`，那是某个客户端自动建的，现在没有工具代劳，那批目录 git 已不认（`git worktree list` 只剩主仓库），别当现存约定用。
+- **工作树**自己建在主仓库之外、路径不含空格的地方（`git worktree add <path> -b <任务名>/<model-slug>`）。不要再用 `~/.local/share/opencode/worktree/<repo-hash>/<dir>`：那是已停用的客户端自动建的路径，历史残留（空目录、`git worktree list` 不认）已在 2026-11-08 清空。
 - remote 指向一个公开仓库（`git remote -v` 看）。没有 CI、没有 PR 流程。
 - 推送可能 TLS 握手失败（`schannel: failed to receive handshake`）：本机走代理，加 `-c http.proxy=http://127.0.0.1:7897` 可过；仍然失败就别硬重试，报给用户。
 - 中文文件名在 `git status` 里显示成八进制转义，正常，别当成乱码去修。
@@ -47,7 +47,7 @@
 - 一个提示词 = 一次评测；给参加评测的每个模型各建一个工作树 + 一个分支，分支名 `<任务名>/<model-slug>`（同名工作树目录里 `/` 变 `-`）。不建工作树时至少也得能说清每个产物来自哪次会话。
 - 每个分支是某个模型对同一提示词的独立答卷：**只对比，不要合并、汇总或互相"修好"**。
 - 清理由用户在会话结束后做（agent 自己的 cwd 就在该工作树里，删不掉）：`git worktree remove --force <path>`（有未提交产物时必须 `--force`，会丢文件）→ `git worktree prune`。报 "being used by another process" 说明还有会话/进程以该目录为工作目录。
-- 清完自检：`git worktree list` 只剩主仓库、`git branch` 只剩 `main`。不查就会积压（漏过一整批，隔了两周才发现；`~/.local/share/opencode/worktree/` 下还躺着几批 git 已不认的残留）。
+- 清完自检：`git worktree list` 只剩主仓库、`git branch` 只剩 `main`、`.git/worktrees/` 为空。不查就会积压（漏过一整批，隔了两周才发现）。
 
 ## evals/（横向测评产物）
 
