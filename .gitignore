@@ -17,7 +17,7 @@ Desktop.ini
 tmp/
 temp/
 
-# OpenChamber 本地产物（截图等），不入库
+# 本地临时产物（截图等），不入库
 .openchamber/
 
 # WorkBuddy 项目数据（记忆、会话索引），不入库

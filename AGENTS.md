@@ -4,7 +4,7 @@
 
 一次性测试沙箱，不是产品仓库。三件事：
 
-1. **横向评测模型**：用 OpenChamber 的 multi-run 让多个模型跑同一提示词，产出收进 `evals/<任务名>/<model-slug>.html`。
+1. **横向评测模型**：让多个模型跑同一提示词（**每个模型一个工作树、一个分支**，手动建），产出收进 `evals/<任务名>/<model-slug>.html`。工具不限，别把某一家的 multi-run 功能当成流程前提。
 2. **验证其他项目**：在干净子目录里跑别人的项目，看能不能装/跑起来。
 3. **知识沉淀**：实测到的机制、命令、坑写进 `knowledge/`。来源有两路——**本机实测**，以及**外部文档**（资料库/云文档里的调研文档、上游官方文档与包元数据）。两路的写法与标注要求不同，见 `knowledge/` 一节。
 
@@ -19,7 +19,7 @@
 
 ## 分支纪律（最容易犯的错）
 
-- `git branch --show-current` 不是 `main` 时，说明你在 multi-run 工作树里：**只 commit 到当前分支，绝不切到 `main`、绝不往 `main` 提交或推送，也不要跑到主仓库目录里改文件**。`evals/`、`knowledge/` 的收录同样留在本分支，等用户自己回收。
+- `git branch --show-current` 不是 `main` 时，说明你在同题评测的工作树里：**只 commit 到当前分支，绝不切到 `main`、绝不往 `main` 提交或推送，也不要跑到主仓库目录里改文件**。`evals/`、`knowledge/` 的收录同样留在本分支，等用户自己回收。
 - 用户说"push"时先看当前分支：模型分支按约定不推，主仓库 `main` 的推送由用户决定。
 - 在工作树里跑 `/knowledge-ingest` 时，末尾的 `git push origin main` 不适用 —— 只提交本分支（别按步号找，命令文件会改编号）。
 
@@ -30,29 +30,30 @@
 1. **先开分支**：`git switch -c <类型>/<主题>`，别在 `main` 上写东西。类型用 `feat` / `fix` / `docs` / `chore`。
 2. **按章节提交**：每完成一个能自洽的单元就提交一次，一个提交干一件事。别攒成一个巨型提交。
 3. **收尾合并再推送**：分支上的任务全部完成并提交后，切回 `main` → `git merge --no-ff <branch>` → `git push origin main` → 删本地分支。
-4. 例外：multi-run 工作树里的模型分支不合并、不推送，见上一节。
+4. 例外：同题评测工作树里的模型分支不合并、不推送，见上一节。
 5. 合并前自检：`git status --short` 干净，`git log --oneline` 上每一步看得懂。
 
 ## 环境
 
-- Windows + PowerShell 7。**主仓库**路径含空格：`E:\opencode agents\test`（命令加引号或 `-LiteralPath`）；工作树路径 `~/.local/share/opencode/worktree/<repo-hash>/<dir>` 不含空格。
+- Windows + PowerShell 7。**主仓库**路径含空格：`E:\opencode agents\test`（命令加引号或 `-LiteralPath`）。
+- **工作树**自己建在主仓库之外、路径不含空格的地方（`git worktree add <path> -b <任务名>/<model-slug>`）。历史上一批在 `~/.local/share/opencode/worktree/<repo-hash>/<dir>`，那是某个客户端自动建的，现在没有工具代劳，那批目录 git 已不认（`git worktree list` 只剩主仓库），别当现存约定用。
 - remote 指向一个公开仓库（`git remote -v` 看）。没有 CI、没有 PR 流程。
 - 推送可能 TLS 握手失败（`schannel: failed to receive handshake`）：本机走代理，加 `-c http.proxy=http://127.0.0.1:7897` 可过；仍然失败就别硬重试，报给用户。
 - 中文文件名在 `git status` 里显示成八进制转义，正常，别当成乱码去修。
 - 外部资料的取用路径（以 WorkBuddy 桌面端为例，其他 harness 用等价能力）：资料库/云文档可列目录也能导出 doc；读取正文的接口返回的是**组件 XML**（`<Heading>` / `<Paragraph>` / `<Table>`），直接读噪声大，先转成纯文本再读。定位「今天新增」用节点列表的 `createdAt`（毫秒），比语义搜索可靠。摘要与检索片段不能当原文用。
 
-## multi-run / 工作树
+## 多模型同题评测 / 工作树
 
-- 每次 multi-run 建一个工作树，分支名形如 `<任务名>/<model-slug>`（目录名里 `/` 变 `-`）。
+- 一个提示词 = 一次评测；给参加评测的每个模型各建一个工作树 + 一个分支，分支名 `<任务名>/<model-slug>`（同名工作树目录里 `/` 变 `-`）。不建工作树时至少也得能说清每个产物来自哪次会话。
 - 每个分支是某个模型对同一提示词的独立答卷：**只对比，不要合并、汇总或互相"修好"**。
 - 清理由用户在会话结束后做（agent 自己的 cwd 就在该工作树里，删不掉）：`git worktree remove --force <path>`（有未提交产物时必须 `--force`，会丢文件）→ `git worktree prune`。报 "being used by another process" 说明还有会话/进程以该目录为工作目录。
-- 清完自检：`git worktree list` 只剩主仓库、`git branch` 只剩 `main`。不查就会积压（漏过一整批，隔了两周才发现）。
+- 清完自检：`git worktree list` 只剩主仓库、`git branch` 只剩 `main`。不查就会积压（漏过一整批，隔了两周才发现；`~/.local/share/opencode/worktree/` 下还躺着几批 git 已不认的残留）。
 
 ## evals/（横向测评产物）
 
 - **原样**存放各模型对同一提示词的产出，只用于对比。不合并、不改代码、不互相"修好"——哪怕某个模型写得明显更烂。
 - 结构 `evals/<任务名>/<model-slug>.ext`：一个提示词一个子文件夹，一个模型一个文件；同一任务换提示词（比如"加动画版"）就另开子文件夹，别覆盖旧文件。
-- `model-slug` 用**实际产出模型**。multi-run 的分支名不可信（有分支叫 `fusion-xxx`、产物其实是 DeepSeek 的），对不上以会话库为准。
+- `model-slug` 用**实际产出模型**。分支名不可信（有分支叫 `fusion-xxx`、产物其实是 DeepSeek 的），对不上以会话库为准。
 - 登记 `evals/README.md`：提示词要点、模型、时间、产出会话 id 只能靠这张表。**提示词原文能存就抄进表里** —— 早期条目只有要点，事后没法确认几版是不是同一个提示词，对比结论就只能打折。
 - 从工作树收录时只拷最终产物，别把工作树里的中间文件搬过去。
 

@@ -64,7 +64,7 @@
 - 需要举例时用占位符：`<owner>/<repo>`、`<path>`、`~/.config/<app>`。
 - **图按性质选画法，别自己拼 ASCII 框图或渲染图片**：
   - **Mermaid**（md 里直接写 ` ```mermaid ` 代码块）：时序（谁先谁后、谁并行）、判定分流（if/else 树）、状态流转、分层依赖、流程步骤。好处是 GitHub 直接渲染、能 diff、能复制。
-  - **`.excalidraw`**（OpenChamber 已装 Excalidraw 扩展，Files 视图点开就是画布）：需要自由布局、手绘标注、并排对比的草图。文件名带"草图"语义，并在对应 md 里用相对链接指过去。
+  - **`.excalidraw`**（任何支持该格式的编辑器都能打开，带 Excalidraw 扩展的 VS Code 即可）：需要自由布局、手绘标注、并排对比的草图。文件名带"草图"语义，并在对应 md 里用相对链接指过去。
 - 纯目录树、命令、表格、清单这类**不是图**的内容照常写文本 —— 给它们套一张图只会多一层阅读成本。
 - Mermaid 图里同样不写隐私：路径用 `<owner>/<repo>`、`<path>` 这类占位符。
 - Mermaid 坑（实测，mermaid 11）：尖括号按图类型处理不同 —— **flowchart** 里裸写 `<name>` 会被当 HTML 标签整段吃掉，必须用 `&lt;` `&gt;`；**sequenceDiagram** 里反过来，`&lt;` 直接 Parse error，尖括号裸写即可；**stateDiagram** 的迁移标签（`s1 --> s2: …`）两种写法都会被搅乱（`&lt;` 错位、裸 `<` 连后半句一起吃），干脆别在这种标签上放尖括号。`#` 同理：sequenceDiagram 的消息和 Note 里会**截断后文**（`a ## b` 只剩 `a`），flowchart 里裸 `#` 无害，只有 `#35;` 这类实体码会被解码。长标签用 `<br/>` 手动折行，不然宽图在 GitHub 上会被缩到看不清。
