@@ -169,4 +169,4 @@ child LLM route "<provider>/<model>" is not allowed for this Session
 - 实际 `GET https://integrate.api.nvidia.com/v1/models`（**无需 key 即可查**）里就有 `minimaxai/minimax-m3.1-flash`；
 - 补一条即可：`- id: minimaxai/minimax-m3.1-flash`、`name: …`、`input: [text]`（未声明容量时按适配器默认 1M 上下文 / 128K 输出）；补后 21 个模型。
 
-相关：[配置分层与目录](配置分层与目录.md) · [凭据体系与密钥打码](凭据体系与密钥打码.md) · [插件体系与安装](插件体系与安装.md)
+相关：[配置分层与目录](配置分层与目录.md) · [凭据体系与密钥打码](凭据体系与密钥打码.md) · [模型设置的状态圆点](模型设置的状态圆点.md) · [插件体系与安装](插件体系与安装.md)
