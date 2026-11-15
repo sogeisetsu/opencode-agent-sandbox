@@ -64,7 +64,7 @@ pwsh.exe（工具进程）
 - **纯浏览器 Web**：才可以提「刷新浏览器页面」；改的是服务端插件时，刷新页面不够，要重启启动它的 `dsh` 进程。
 - 另外，改客户端插件是否自动生效还取决于是否有前端构建在跑（如开发态 `dev:web`）；**Desktop/Web 判定 ≠ 热更新是否生效**。
 - headless / sdk / 自定义 profile：没有 GUI，不提刷新页面或重开应用，按「重跑 CLI 进程」说。
-- 配套 skill `dsh-desktop-vs-web`（用户级 `~/.dsh/skills/`）把这套判定固化在给建议之前；`~/.dsh/AGENTS.md` 里放了一条常驻触发。
+- 配套 skill `dsh-surface-check`（用户级 `~/.dsh/skills/`）把这套判定固化在给建议之前。触发只靠 catalog 里的 name + description：`whenToUse` 等其它 frontmatter 字段当前不渲染给模型，别指望它们触发。
 
 ## 坑
 
