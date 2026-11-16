@@ -8,9 +8,9 @@
 2. **验证其他项目**：在干净子目录里跑别人的项目，看能不能装/跑起来。
 3. **知识沉淀**：实测到的机制、命令、坑写进 `knowledge/`。来源有两路——**本机实测**，以及**外部文档**（资料库/云文档里的调研文档、上游官方文档与包元数据）。两路的写法与标注要求不同，见 `knowledge/` 一节。
 
-除 `.gitignore` 和 `.opencode/command/`（只放自定义命令）外没有任何源码、依赖、构建/测试/lint 配置或 CI。别去找构建命令，也别为了"把项目补完整"添加 manifest、脚手架、CI 或 README —— 除非用户明确要求；`knowledge/`、`evals/` 各有一份索引 README，属于约定的一部分。
+除 `.gitignore`、`.opencode/command/`（只放自定义命令）和 `.opencode/skills/`（放技能）外没有任何源码、依赖、构建/测试/lint 配置或 CI。别去找构建命令，也别为了"把项目补完整"添加 manifest、脚手架、CI 或 README —— 除非用户明确要求；`knowledge/`、`evals/` 各有一份索引 README，属于约定的一部分。
 
-仓库根只该有 `.gitignore`、`AGENTS.md`、`knowledge/`、`evals/`、`.opencode/`。演示产物一律进 `evals/`，别落在根目录（根目录曾躺过一个 `index.html`，最后靠查会话库才知道是哪个模型做的）。
+仓库根只该有 `.gitignore`、`AGENTS.md`、`knowledge/`、`evals/`、`.opencode/`。演示产物一律进 `evals/`，别落在根目录（根目录曾躺过一个 `index.html`，最后靠查会话库才知道是哪个模型做的）。`.workbuddy/`（项目级记忆等本机数据）和 `.openchamber/`（截图等临时产物）已在 `.gitignore` 里，属于本机数据：别提交，也别当成脏文件清掉。
 
 ## 本文件的地位
 
@@ -20,7 +20,7 @@
 ## 分支纪律（最容易犯的错）
 
 - `git branch --show-current` 不是 `main` 时，说明你在同题评测的工作树里：**只 commit 到当前分支，绝不切到 `main`、绝不往 `main` 提交或推送，也不要跑到主仓库目录里改文件**。`evals/`、`knowledge/` 的收录同样留在本分支，等用户自己回收。
-- 用户说"push"时先看当前分支：模型分支按约定不推，主仓库 `main` 的推送由用户决定。
+- 用户说"push"时先看当前分支：模型分支按约定不推；主仓库 `main` 按「开发流程」第 3 步合并后直接推送。
 - 在工作树里跑 `/knowledge-ingest` 时，末尾的 `git push origin main` 不适用 —— 只提交本分支（别按步号找，命令文件会改编号）。
 
 ## 开发流程
@@ -28,7 +28,7 @@
 在主仓库里做实质改动（新增 skill / 命令、调整目录结构、改写本文件或索引的约定）都按这个走；`knowledge/`、`evals/` 的收录（含新建类目、一次收多篇）属于记录性质，直接进 `main`。
 
 1. **先开分支**：`git switch -c <类型>/<主题>`，别在 `main` 上写东西。类型用 `feat` / `fix` / `docs` / `chore`。
-2. **按章节提交**：每完成一个能自洽的单元就提交一次，一个提交干一件事。别攒成一个巨型提交。
+2. **按章节提交**：每完成一个能自洽的单元就提交一次，一个提交干一件事。别攒成一个巨型提交。提交信息沿用本仓库格式 `<type>(<area>): 中文简述`（如 `docs(knowledge):`、`docs(agents):`、`docs(evals):`），`--no-ff` 合并写 `merge: <主题>`。
 3. **收尾合并再推送**：分支上的任务全部完成并提交后，切回 `main` → `git merge --no-ff <branch>` → `git push origin main` → 删本地分支。
 4. 例外：同题评测工作树里的模型分支不合并、不推送，见上一节。
 5. 合并前自检：`git status --short` 干净，`git log --oneline` 上每一步看得懂。
@@ -80,4 +80,4 @@
 
 ## 规则来源
 
-全局硬约束与工作流在 `~/.config/opencode/AGENTS.md`（不泄密、高风险/不可逆先确认、临时产物自行清理等）。本文件只写仓库特有内容，别重复全局规则。
+全局硬约束与工作流在各 harness 的用户级 `AGENTS.md`（OpenCode 在 `~/.config/opencode/`，DSH 在 `~/.dsh/`；内容为不泄密、高风险/不可逆先确认、临时产物自行清理等）。本文件只写仓库特有内容，别重复全局规则。
