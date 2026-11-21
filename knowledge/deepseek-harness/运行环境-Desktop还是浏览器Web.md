@@ -1,6 +1,6 @@
 # DSH 当前是 Desktop 还是浏览器 Web：判定信号与行为差异
 
-> 核对：2026-11-16。依据：本机 desktop 会话实测（环境变量、运行时路径）＋打包产物源码核对（`dsh-desktop-host`、`dsh-shell-env`、`dsh-web-app`、`dsh` CLI README）。纯浏览器 Web（`dsh --profile web`）未在本机实跑，相关取值按源码与命名约定给出，标**源码级/推测**。DSH 为 nightly，信号名会漂移。
+> 核对：2026-11-16；2026-11-21 补「Desktop 端口为什么浏览器进不去」。依据：本机 desktop 会话实测（环境变量、运行时路径、端口探针）＋打包产物源码核对（`dsh-desktop-host`、`dsh-shell-env`、`dsh-web-app`、`dsh` CLI README）。纯浏览器 Web（`dsh --profile web`）本轮未实跑；`profiles/web` 目录已存在（0 deps、`dsh-base` + `dsh-web-app`），相关取值按源码与命名约定给出，标**源码级/推测**。DSH 为 nightly，信号名会漂移。
 
 ## 结论
 
@@ -50,6 +50,19 @@ pwsh.exe（工具进程）
 
 另外，系统提示里给的「implementation checkout」若形如 `<install>\resources\app.asar\dsh`，即可直接判为安装版桌面。
 
+## Desktop 的端口：浏览器进不去
+
+Desktop 的 Web GUI 也监听 `127.0.0.1:<port>`，但裸地址会被鉴权挡掉（**已验证**，本轮 `Invoke-WebRequest`）：
+
+```text
+GET http://127.0.0.1:<port>/
+401 dsh web authentication required; reopen the URL printed by dsh web.
+```
+
+- 鉴权用的是 **launch token**：`dsh web` 启动时随机生成、只在该进程内存里，随它打印的 URL 一起给出。
+- Desktop 窗口不走这条：它用裸 `${origin}/` 走内部受信通道，**从不打印 token**（**源码级**：`dsh-desktop-host`）。所以从 Desktop 的 `DSH_WEB_URL` 反推不出一个浏览器能用的地址——「用外部浏览器加入 Desktop 进程」这条路不存在。要在浏览器里用，就自己起 `dsh --profile web`，拿它打印的带 token URL。
+- 反向也成立：端口能连上、返回 401，只说明有进程在听，**不说明当前是浏览器 Web**。
+
 ## 源码依据（源码级）
 
 - `dsh-desktop-host`：桌面主机 `runProfile({ profile: "desktop", ... })`，注释原文 *“Launch the Desktop profile through the Web application and report its URL to Electron.”* → 这是「Desktop 也是内嵌 Web GUI」的根因；Electron 主进程用 `desktopNodeEnvironment()` 设置 `ELECTRON_RUN_AS_NODE=1` 后以 Node 模式拉起宿主（`lib/main.js`）。
@@ -69,7 +82,7 @@ pwsh.exe（工具进程）
 ## 坑
 
 - 只看 `DSH_WEB_URL` 会把 Desktop 误判成 Web。
-- 只看「浏览器里能打开 127.0.0.1 页面」也不行——那是 Desktop 的 GUI，用户也可能用外部浏览器打开同一个地址。
+- 只看「浏览器里能打开 127.0.0.1 页面」也不行——Desktop 的 GUI 在同一个端口，虽然裸地址现在返回 401，能打开也只说明有进程在听。
 - `DSH_*` 不是进程启动快照：由 `dsh-shell-env` 在每次 shell 调用时重建注入；但 profile 与 URL 在本会话内不变，中途切权限模式（如工作区内修改 → 完全权限）不改变判定。
 - 从 Desktop 的 shell 里再启 `dsh --profile web` 会同时带 `ELECTRON_RUN_AS_NODE`，此时以 `DSH_PROFILE` 为准。
 - 受限沙箱下 `Get-CimInstance Win32_Process` 会被拒（本机 workspace-write 实测「拒绝访问」）；判定不必依赖它，用 `DSH_PROFILE*` 与 checkout 字段即可，别为判定去提权。
