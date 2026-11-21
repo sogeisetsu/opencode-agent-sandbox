@@ -38,7 +38,8 @@
 - Windows + PowerShell 7。**主仓库**路径含空格：`E:\opencode agents\test`（命令加引号或 `-LiteralPath`）。
 - **工作树**自己建在主仓库之外、路径不含空格的地方（`git worktree add <path> -b <任务名>/<model-slug>`）。不要再用 `~/.local/share/opencode/worktree/<repo-hash>/<dir>`：那是已停用的客户端自动建的路径，历史残留（空目录、`git worktree list` 不认）已在 2026-11-08 清空。
 - remote 指向一个公开仓库（`git remote -v` 看）。没有 CI、没有 PR 流程。
-- 推送可能 TLS 握手失败（`schannel: failed to receive handshake`）：本机走代理，加 `-c http.proxy=http://127.0.0.1:7897` 可过；仍然失败就别硬重试，报给用户。
+- **推送/拉取优先用 SSH remote**：本机直连 GitHub 的 **443 不通**（`Test-NetConnection github.com -Port 443` 为 False，`curl https://github.com` 约 10 秒超时、收到 0 字节），但 **22 通**（`ssh -T git@github.com` 返回 `Hi <user>! You've successfully authenticated, but GitHub does not provide shell access.`，退出码 1 属正常）。git 按 remote URL 决定协议：URL 是 HTTPS 就只走 443、根本不碰 SSH，所以「SSH 都配好了却推不上去」先看 `git remote -v`，再 `git remote set-url origin git@github.com:<owner>/<repo>.git`。
+- HTTPS remote 非用不可时走本机 HTTP 代理：`git -c http.proxy=http://127.0.0.1:7897 push`（端口以本机代理软件实际监听为准）。同一根因的另一种表现是 `schannel: failed to receive handshake`（TCP 通了但 TLS 被断）。别把代理写进全局 git config —— 代理没开时所有仓库一起断。仍然失败就别硬重试，报给用户。
 - 中文文件名在 `git status` 里显示成八进制转义，正常，别当成乱码去修。
 - 外部资料的取用路径（以 WorkBuddy 桌面端为例，其他 harness 用等价能力）：资料库/云文档可列目录也能导出 doc；读取正文的接口返回的是**组件 XML**（`<Heading>` / `<Paragraph>` / `<Table>`），直接读噪声大，先转成纯文本再读。定位「今天新增」用节点列表的 `createdAt`（毫秒），比语义搜索可靠。摘要与检索片段不能当原文用。
 
