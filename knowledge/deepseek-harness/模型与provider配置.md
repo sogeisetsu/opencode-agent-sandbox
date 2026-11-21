@@ -1,6 +1,6 @@
 # DSH 模型与 Provider：配置、静态模型目录与子代理白名单
 
-> 核对：2026-11-12。依据：2026-11-09～11-11 的会话实测（商汤 Token Plan 接入、429 联调、模型目录核对）与打包代码/目录阅读；本轮复核了 profile patch 中的 provider 条目与版本。DSH 为 nightly 预发布，模型目录与 pi-ai 版本会漂移。
+> 核对：2026-11-12，2026-11-21 补「思考强度的默认值」一节。依据：2026-11-09～11-11 的会话实测（商汤 Token Plan 接入、429 联调、模型目录核对）与打包代码/目录阅读；2026-11-21 复核 profile patch、Go 模型目录缓存、`dsh-opencode-go` 插件代码与 DeepSeek 官方文档。DSH 为 nightly 预发布，模型目录与 pi-ai 版本会漂移。
 
 ## 结构：所有外部模型都走 `llm-pi-ai` 适配层
 
@@ -138,6 +138,27 @@ pi-ai 的两条规则决定了「换路由名 + 拉取模型」方案对它是�
 3. **给某个组件单独指定**（如标题插件加 `provider` / `model`，见[工作区与会话](工作区-会话与指令链.md)）。
 
 同一会话跨 provider 换模型是正常能力，不要求配置一致；每个模型可单独选思考强度（推理档位）。
+
+## 思考强度的默认值：不指定档位就等于交给上游
+
+问题原型：「OpenCode Go 里 DeepSeek V4.1 Flash（实时目录里的展示名是 `DeepSeek V4.1 Flash 1017`，即 2026-10-17 那次更新）默认思考强度是多少？」
+
+结论：**默认开思考、档位 `high`**。但要说清这是**上游（DeepSeek）的默认**，不是 DSH 替你选的——在这条路由上，DSH 不选档位时根本不会发 `reasoning_effort`：
+
+| 层 | 事实 | 证据 |
+|---|---|---|
+| 模型目录 | 只声明可用档位 `low` / `high` / `max`，**没有「默认档」字段** | Go 模型目录 `https://opencode.ai/inference/go/v1/models`（本机缓存 `~/.dsh/cache/dsh-opencode-go/go.models.json`）；内置 pi-ai 目录 `opencode-go.json` 的 `thinkingLevelMap` 也是 `low/high/max`，`off` / `medium` / `xhigh` 均为 `null` |
+| DSH 配置 | 默认模型只写 provider 与 model，不写 `reasoningEffort`；会话头也只有 `agentPreset`，没有档位字段 | profile patch 的 `agent-default-model`（仅 `provider: dsh-opencode-go`、`model: deepseek-v4.1-flash`）；本机会话的 `session` 事件 |
+| 插件行为 | 未指定档位 → 意图是 `default` → 请求体**完全不写 `reasoning_effort`** | `dsh-opencode-go` 的 `lib/index.js`：`reasoningIntent()` 首行 `if (level === void 0) return { kind: "default" }`，`reasoningRequest()` 对 `default` 返回空对象 |
+| 上游默认 | 思考模式默认开启，**默认 effort 为 `high`**；映射表 `minimal→low`、`medium→high`、`xhigh→high`、`max→max` | DeepSeek 官方 Thinking Mode 文档（`reasoning_effort` 接受 `low/high/max`） |
+
+操作含义：
+
+- 这支模型只有 `low` / `high` / `max` 真正有区别；`medium` 即使能选也会被上游折回 `high`，等于没选。
+- 不选档位 = `high`；想省 token 选 `low`，想加准确率选 `max`。
+- **「界面上有档位控件」不等于线上发了参数**：不选档位时走的就是上表第三行那条路径。
+
+未核实：以上「默认 high」由「上游文档口径 + 未指定档位不发参数」两条推出，没有用 Go 的 key 发 `无参数 / low / high` 三次请求对比 reasoning token，确认网关是否原样转发。
 
 ## 子代理模型白名单
 
