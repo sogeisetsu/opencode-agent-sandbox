@@ -1,6 +1,6 @@
 # DSH Windows「工作区内修改」：已有子目录不可写（能力项与 Low 标签缺失）
 
-> 核对：2026-11-13。依据：本机实测（DSH 0.2.2-rc.1 nightly，Windows 11）＋打包产物源码（`dsh-sandbox-windows-acl`、`dsh-sandbox-local`、`dsh-fs-sandbox`、`dsh-pwsh-sandbox`）＋上游讨论口径（`deepseek-ai/deepseek-harness` 讨论 #11154、#12435）。成因的完整历史（首次供给为何漏掉这些子目录）未还原，相关段落标**推测**。DSH 为 nightly，包内实现会漂移。
+> 核对：2026-11-13，2026-11-25 追加整树修复实测。依据：本机实测（DSH 0.2.2-rc.1 nightly，Windows 11）＋打包产物源码（`dsh-sandbox-windows-acl`、`dsh-sandbox-local`、`dsh-fs-sandbox`、`dsh-pwsh-sandbox`）＋上游讨论口径（`deepseek-ai/deepseek-harness` 讨论 #423、#7504、#8383、#8421、#9559、#9903、#10463、#11154）。成因的完整历史（首次供给为何漏掉这些子目录）未还原，相关段落标**推测**。DSH 为 nightly，包内实现会漂移。
 
 ## 结论
 
@@ -90,17 +90,52 @@ setNamedSecurityInfoW(path, 1 /* SE_FILE_OBJECT */,
 
 - 判定 `PRECONDITION` → 补完全控制 → 验证通过 → 技能让你重试原操作；
 - 原操作仍失败（标签还缺）→ 没有下一手可用；此时只能切「完全权限」并把问题报给上游。
+- **判定还取决于指哪一层**（**已验证**，本机两次实跑）：指工作区根 → `NOT_THIS_CLASS`（根上 `WRITE_DAC`/`WRITE_OWNER` 都齐、子树扫描只找外来包 ACE，于是 `FIXED=0`、`visited=321`、`nextAction: stop`）；指 `<workspace>/.git` → `PRECONDITION`。两种判定都到不了缺失的标签，但根级那次的输出最容易被误读成「整个工作区已检查完毕、没问题」。
 
 ## 绕行与修复现状
 
-- **临时**：需要 shell 写仓库（`git` 提交、脚本写子目录）时把会话切到「完全权限」（`danger-full-access`）；文件工具不受影响，日常改文件仍可用「工作区内修改」。
-- **持久**：上游已有多篇同现象讨论（`deepseek-ai/deepseek-harness` 讨论 #11154、#12435；本机补充证据已回帖在 #11154）。修复方向是供给时校验/修复子目录、提供手动重新供给入口，而不是把「根上条目齐全」当作整个工作区已就绪。
-- 手工给子目录补 Low 标签属于系统权限改动，超出内置诊断脚本范围，需自行评估风险与备份。
+**临时绕行**：需要 shell 写仓库（`git` 提交、脚本写子目录）时把会话切到「完全权限」（`danger-full-access`）；文件工具不受影响，日常改文件仍可用「工作区内修改」。
+
+**整树补标签（已验证，本机跑通）**：分两步，顺序不能换。先让当前用户拿到可继承的完全控制（写 SACL 需要 `WRITE_OWNER`），再打标签——只做第二步会在目录上全部失败。
+
+```powershell
+# 1) 授权必须带 (OI)(CI) 继承，否则子目录拿不到 WRITE_OWNER
+icacls "<dir>" /grant "<user>:(OI)(CI)F" /T /C
+# 2) 再整树打 Low 标签
+icacls "<dir>" /setintegritylevel "(OI)(CI)Low" /T /C
+```
+
+实测的失败/成功对照（**已验证**）：
+
+```text
+# 只做第二步（缺 WRITE_OWNER）
+<ws>\.git         Successfully processed 862 files; Failed processing 270 files
+<ws>\knowledge    Successfully processed 110 files; Failed processing  34 files
+→ 所有失败行都是目录，文件全成功
+
+# 先授权再打标签
+.git 1132 / 0、knowledge 144 / 0、.opencode 6 / 0、.workbuddy 5 / 0
+→ 受限 shell 下四个目录均可写；git add / git rm --cached / git branch / git branch -D / git fetch 全部 exit 0
+```
+
+「文件成功、目录失败」这个分裂可以当作缺 `WRITE_OWNER` 的现场判据。
+
+**改之前要核对的边界**（社区总结 + 本机核对）：
+
+| 边界 | 本机情况 |
+|---|---|
+| 整树重打标签后，本机**任何** Low 完整性进程都能写这棵树 | 成立，与根目录原有暴露面同级 |
+| `/T` 会跟进 junction / 重解析点，可能静默写出工作区 | 已递归扫描：0 个重解析点，未外溢 |
+| 根上 `Everyone` 的 `FILE_DELETE_CHILD` 拒绝项不能删，否则打开跨工作区删除洞 | 未触碰，原样保留 |
+| `icacls` 无法命名派生的能力 SID（`ERROR_NONE_MAPPED` 1332），能力项只能靠一次 DACL 重写触发重算 | 第一步的 `/grant` 正好完成了这次重写 |
+
+**上游状态**：多篇重复报告（#423 最早，8 月；Low 标签层 9-19 引入后集中爆发），根因定位到 `packages/sandbox/sandbox-windows-acl/src/acl.ts` 的 `grantWrite` 幂等短路只校验根对象；维护方口径是「没有可指向的受支持修复命令」，核心修复需把跳过判据改成树感知、或增加一次跳过重解析点的后代遍历。修复方向不是把「根上条目齐全」当成整个工作区已就绪。
 
 ## 未核实项
 
 - 本机这几个子目录首次供给被漏掉的确切成因（时序/当时 ACL）未还原。
-- 标签写入所需的最小权限组合未逐项实验（只验证了「缺 `WRITE_OWNER` 时标签没被写入」）。
+- 缺 `WRITE_OWNER` 时**文件能打上标签、目录不能**，机制上未解释清（两者都走同一条 `icacls`，现象可复现，原因未定）。
+- 标签修复的最小权限组合只验证了「可继承 FullControl」这一路；社区配方用的是单项 `(WO)`，未逐项对比。
 - 其他 Windows 版本、其他 DSH 版本上的表现可能不同；本文以本机 0.2.2-rc.1 为准。
 - 上游讨论编号与内容可能更新，引用时以仓库内为准。
 
