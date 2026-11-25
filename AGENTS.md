@@ -20,8 +20,7 @@
 ## 分支纪律（最容易犯的错）
 
 - `git branch --show-current` 不是 `main` 时，说明你在同题评测的工作树里：**只 commit 到当前分支，绝不切到 `main`、绝不往 `main` 提交或推送，也不要跑到主仓库目录里改文件**。`evals/`、`knowledge/` 的收录同样留在本分支，等用户自己回收。
-- 用户说"push"时先看当前分支：模型分支按约定不推；主仓库 `main` 按「开发流程」第 3 步合并后直接推送。
-- 在工作树里跑 `/knowledge-ingest` 时，末尾的 `git push origin main` 不适用 —— 只提交本分支（别按步号找，命令文件会改编号）。
+- 在工作树里跑 `/knowledge-ingest` 时只提交本分支，不要合并到 `main`（别按步号找，命令文件会改编号）。
 
 ## 开发流程
 
@@ -29,7 +28,7 @@
 
 1. **先开分支**：`git switch -c <类型>/<主题>`，别在 `main` 上写东西。类型用 `feat` / `fix` / `docs` / `chore`。
 2. **按章节提交**：每完成一个能自洽的单元就提交一次，一个提交干一件事。别攒成一个巨型提交。提交信息沿用本仓库格式 `<type>(<area>): 中文简述`（如 `docs(knowledge):`、`docs(agents):`、`docs(evals):`），`--no-ff` 合并写 `merge: <主题>`。
-3. **收尾合并再推送**：分支上的任务全部完成并提交后，切回 `main` → `git merge --no-ff <branch>` → `git push origin main` → 删本地分支。本机没有 SSH 私钥时这条 `push` 会失败，按「环境」一节的 HTTPS 走法推。
+3. **收尾合并**：分支上的任务全部完成并提交后，切回 `main` → `git merge --no-ff <branch>` → 删本地分支。
 4. 例外：同题评测工作树里的模型分支不合并、不推送，见上一节。
 5. 合并前自检：`git status --short` 干净，`git log --oneline` 上每一步看得懂。
 
@@ -38,13 +37,6 @@
 - Windows + PowerShell 7。**主仓库**路径含空格：`E:\opencode agents\test`（命令加引号或 `-LiteralPath`）。
 - **工作树**自己建在主仓库之外、路径不含空格的地方（`git worktree add <path> -b <任务名>/<model-slug>`）。不要再用 `~/.local/share/opencode/worktree/<repo-hash>/<dir>`：那是已停用的客户端自动建的路径，历史残留（空目录、`git worktree list` 不认）已在 2026-11-08 清空。
 - remote 指向一个公开仓库（`git remote -v` 看）。没有 CI、没有 PR 流程。
-- **推送前先确认有没有可用私钥，再决定协议**。`ssh -T git@github.com` 报 `Permission denied (publickey)` 说明**本机没有私钥**（`~/.ssh` 里可能只剩 `known_hosts`）；这时改 remote 成 SSH 只会把原本能用的路也堵掉，该走下面的 HTTPS。有私钥时 22 直连是通的，成功时输出 `Hi <user>! You've successfully authenticated, but GitHub does not provide shell access.`，退出码 1 属正常。
-- 主机密钥缺失时报的是 `Host key verification failed`（不是 key 的问题）。补 `known_hosts` 后，用指纹对照 `https://api.github.com/meta` 的 `ssh_key_fingerprints` 再确认一次；`ssh-keyscan` 在 Windows OpenSSH 上对 GitHub 会因 `unsupported KEX method` 直接失败，得靠 `ssh -o StrictHostKeyChecking=accept-new` 写入。
-- **没有私钥就走 HTTPS + 本机代理，并且必须同时关掉证书吊销检查**：
-  `git -c http.proxy=http://127.0.0.1:7897 -c http.schannelCheckRevoke=false push https://github.com/<owner>/<repo>.git main:main`
-  只给 `http.proxy` 时，git 会在 `CONNECT github.com:443` 拿到 `200 Connection established` 之后 TLS 握手失败（`schannel: failed to receive handshake`，换成 `http.sslBackend=openssl` 则是 `unexpected eof while reading`），而同一个代理用 `curl.exe -x http://127.0.0.1:7897 https://github.com` 返回 200 —— **「curl 能通」不等于「git 能通」**。`socks5h://127.0.0.1:7897` 同样可用，可作备选。
-- 443 不经代理直连 `github.com` 仍不通（`fatal: unable to access …: Recv failure: Connection was reset`），但 `api.github.com` 直连正常，别拿后者推断前者。凭据由 `credential.helper=manager` 提供，非交互场景加 `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never`，凭据缺失时会直接失败而不是弹窗挂住。
-- 代理端口以本机实际监听为准（`Test-NetConnection 127.0.0.1 -Port 7897`）。别把代理或吊销开关写进全局 git config —— 代理没开时所有仓库一起断。仍然失败就别硬重试，报给用户。
 - 中文文件名在 `git status` 里显示成八进制转义，正常，别当成乱码去修。
 - 外部资料的取用路径（以 WorkBuddy 桌面端为例，其他 harness 用等价能力）：资料库/云文档可列目录也能导出 doc；读取正文的接口返回的是**组件 XML**（`<Heading>` / `<Paragraph>` / `<Table>`），直接读噪声大，先转成纯文本再读。定位「今天新增」用节点列表的 `createdAt`（毫秒），比语义搜索可靠。摘要与检索片段不能当原文用。
 
