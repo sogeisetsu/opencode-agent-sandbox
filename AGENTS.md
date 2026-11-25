@@ -39,6 +39,8 @@
 - remote 指向一个公开仓库（`git remote -v` 看）。没有 CI、没有 PR 流程。
 - 中文文件名在 `git status` 里显示成八进制转义，正常，别当成乱码去修。
 - 外部资料的取用路径（以 WorkBuddy 桌面端为例，其他 harness 用等价能力）：资料库/云文档可列目录也能导出 doc；读取正文的接口返回的是**组件 XML**（`<Heading>` / `<Paragraph>` / `<Table>`），直接读噪声大，先转成纯文本再读。定位「今天新增」用节点列表的 `createdAt`（毫秒），比语义搜索可靠。摘要与检索片段不能当原文用。
+- `workspace-write` 下写 `.git` 或已有子目录被拒时，先 `icacls` 看目标有没有 `Mandatory Label\Low Mandatory Level`——缺标签就是根因，别先怀疑网络、认证或插件；修复配方见 `knowledge/deepseek-harness/Windows沙箱-已有子目录不可写.md`。
+- 回答「能不能 / 通不通 / 生效没有」这类问题前，先实跑一条最小命令拿到输出，再给结论；不要用推理代替实测。
 
 ## 多模型同题评测 / 工作树
 
