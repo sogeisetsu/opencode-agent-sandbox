@@ -40,7 +40,46 @@ flowchart TB
 | **preset 子插件（Agent 级）** | `preset-<id>` 行的 `config.plugins` | 会话选中的预设 | persona、prompt 片段、限定作用域的工具、策略 | 只引用可解析包，不装包；已有 Agent 保留绑定时的 revision |
 | **Client 模块（浏览器面）** | bundle 的 `dsh.client`（`platform` / `immediately` / `inject` + `./client` 导出） | 随那条 Host 行加载，浏览器按 slot 注册 | UI 装饰、页面、菜单 | 不是第四种挂载位置，是 Host 行派生出的浏览器执行面；preset 管不到 |
 
-> 一句速记：**profile 决定有没有，bundle 补丁给出厂默认，你的 patch 改默认，preset 决定这桌点不点，Client 模块是界面在浏览器里的那个面。**
+### 一句话比喻：Profile 管「装不装、怎么配」，Preset 管「用不用」
+
+> **Profile 决定它有没有被安装、以及如何配置；Preset 决定它是否被启用。**
+
+拆成三句：
+
+1. **Profile 管进料**：包在不在、哪些补丁层参与叠加、默认配置长什么样。
+2. **Preset 管取用**：这个 Agent 从可用物料里取哪几样、带什么参数挂上去。
+3. **但不是所有物料都归 Preset 取用**：Host 类插件只认 Profile，Preset 无权置喙。
+
+| 行属于哪棵树 | 谁能决定它启用/禁用 | 谁能改它的配置 | Preset 能不能干预 |
+|---|---|---|---|
+| **Host 行** | Profile | Profile（补丁层，`config` 整段替换） | **不能** |
+| **Preset 子行** | 该预设声明 | 该预设声明（覆盖时整段替换 `plugins`） | 能 |
+| **Client 模块** | 随所属 Host 行 | 所属 Host 行 | 不能 |
+
+### 「池子」的准确含义，以及三处需要收紧的地方
+
+「Profile 给 Preset 一个池子，Preset 决定池子里哪些被启用」这个直觉方向是对的，但要收紧三点，否则会踩坑：
+
+| 说法 | 收紧后 | 为什么 |
+|---|---|---|
+| 「Preset 启用某个插件包」 | Preset 挂载的是**某一行的挂载点**，不是包本身 | 包没有「启用」状态；同一个包能在两棵树里各挂一行，跑出两个实例 |
+| 「池子里的都能挑」 | Preset 只能挑**已在解析表里**的包，且依赖要能满足 | 声明不安装包、也不扩池；挑到池外的东西 → 整份预设挂载失败 |
+| 「普通 Bundle 也归 Preset 选」 | Bundle 是**补丁容器**，参不参与叠加由 Profile 决定 | Preset 能做的只是引用它带来的包，或覆盖某个预设声明 |
+
+所以更准确的一句是：**Profile 负责「备料 + 出厂默认装配 + 划定可用池边界」，Preset 负责「在这桌点哪几样」。**
+
+### 判断一个插件该归谁管
+
+| 判据 | 归 Profile | 归 Preset |
+|---|---|---|
+| 不同会话需要不同表现吗 | 否 | **是** |
+| 有没有别的 Host 行依赖它（服务被上层消费） | **是** | 否 |
+| 浏览器端要不要它 | **是** | 否 |
+| 名字需要在全进程唯一吗 | **是** | 否 |
+
+只要有一条命中「归 Profile」，就应该放 Host 树；四条都不命中，才考虑放预设子行。放错的表现：放 Host 想按会话区分 → 改不动；放 Preset 想全局共享 → 域外看不见，或直接挂载失败。
+
+**源码级依据**：Preset 子行在挂载时被单独组建成一棵新的 EntryTree（`dsh-agent-preset-registry/src/mount.ts` 的 `mountPreset`），而 Profile 的补丁只作用于 Host 那棵树的 entry 列表（`dsh-app-boot/src/profile.ts` 的 `composeEntries` 对空根调 `applyEntryPatches`）。两棵树各自维护 id，所以互相禁用不了。
 
 ```mermaid
 flowchart TD
