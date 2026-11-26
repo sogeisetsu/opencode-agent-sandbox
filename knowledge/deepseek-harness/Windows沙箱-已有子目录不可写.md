@@ -155,9 +155,24 @@ icacls "<dir>" /setintegritylevel "(OI)(CI)Low" /T /C
 
 另外它识别「根可写、子目录不可写」这族时用正则提取命令里的路径字面量，**路径含空格即截断并静默放弃**（`lib/signature.js`），所以本机这种带空格的 `<workspace>` 路径它连提示都不会给。结论：它替代不了修复，本机修好后也没有可观察收益。
 
+## 为什么漏掉的子目录一直修不好（2026-11-26 追加验证）
+
+三个层次，缺一不可：
+
+1. **受限 shell 要写成功，目标上必须同时有两条**：能力 SID 的写项 `S-1-4-…:(OI)(CI)(W,D,DC)`（令牌是 write-restricted，第二次访问检查只认 restricting SID）和可继承的 `Mandatory Label\Low`（令牌完整性 Low，no-write-up）。缺任一条，报错都是同一句 `Access denied`，不区分缺哪条。
+2. **供给只发生在工作区根，且会短路**：上游 `grantWrite`（`packages/sandbox/sandbox-windows-acl/src/acl.ts`）只对传入的路径做一次安全描述符更新，不显式遍历后代；根上三项（能力项 / `Everyone` 拒绝项 / Low 标签）精确齐全时**整次跳过**（源码注释：避免大工作区全树传播耗时）。→ 重启 DSH、重开会话都不会重修后代；一次漏掉就永久漏掉。
+3. **本机 `evals` / `.openchamber` 从未被供给过**：SDDL 是干净的继承默认 DACL（`Protected=False`、`Rules=0`、无显式 owner SID），连里面的文件都没有能力项；而 `.git` / `knowledge` 的文件上有 `(I)(W,D,DC)` 和 Low 标签。结合 2026-11-25 那次是逐目录修的四个目录，结论是**那次修复没覆盖这两个目录**，不是 Windows 继承机制失效。
+
+排除掉的错误解释（**已验证**，本机受控实验）：
+
+- ✗「Windows 不会把父目录 ACL 传播给已存在的子目录」：`icacls /grant` 和 `Set-Acl`（只改父、不遍历）两条路都实测把新增的可继承 ACE 和 Low 标签传播给了事先存在的子目录，连 `/inheritance:r` 保护过的除外。父改子继承是有效的。
+- ✗「这些目录被保护了继承」：`evals` / `.openchamber` 的 `AreAccessRulesProtected=False`、`AreAccessRulesCanonical=True`。
+
+另一个实测坑：能力项的掩码 `0x110156`（`W,D,DC`）**不含 `WRITE_DAC`/`WRITE_OWNER`**，所以受限 shell 里连 `icacls /grant` 都直接 `Access is denied`——自己修不了自己的 ACL，这是修复必须提权执行的直接原因。
+
 ## 未核实项
 
-- 本机这几个子目录首次供给被漏掉的确切成因（时序/当时 ACL）未还原。
+- 本机 `evals` / `.openchamber` 在最初供给时究竟为什么没拿到继承项（时序还是当时 ACL 状态），现有记录无法还原；但「之后没被任何一次修复覆盖」是确定的。
 - 缺 `WRITE_OWNER` 时**文件能打上标签、目录不能**，机制上未解释清（两者都走同一条 `icacls`，现象可复现，原因未定）。
 - 标签修复的最小权限组合只验证了「可继承 FullControl」这一路；社区配方用的是单项 `(WO)`，未逐项对比。
 - 其他 Windows 版本、其他 DSH 版本上的表现可能不同；本文以本机 0.2.2-rc.1 为准。
