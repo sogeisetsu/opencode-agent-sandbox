@@ -1,6 +1,8 @@
 # DSH 的 Profile 与预设：进程级宿主 vs 会话级 agent
 
 > 核对：2026-11-21。依据：本轮只读复核（两个 profile 的 `package.json`、会话头解帧、`127.0.0.1` 探针、`dsh plugin --help`、`app.asar` 内 `install-spec.ts` / `dsh-web-app/presets/*.patch.yml` / CLI 的 `rejectElectronProfile` 源码）＋ 上一轮会话内的实读结论。未标注＝本轮实测；**源码级**＝读打包源码或包内文档得出、未实跑；**推理**＝由事实推出、无直接证据。DSH 走 nightly，预设行与包名会漂移，本篇有效窗口约一个 rc 周期。
+>
+> 2026-11-26 补：按挂载位置的三类插件、两种「加插件」。依据 `0.2.2-rc.5` 安装目录内 `@deepseek-ai/dsh-agent-preset` 的 README 与 `skills/dsh-doc/references/{compositions,ui-plugin,composition-reference}.md`、`dsh-web-app/README.zh.md` 与 `presets/*.patch.yml`；**文档级/源码级**，未改配置、未实跑新会话。
 
 ## 一句话
 
@@ -29,6 +31,34 @@ flowchart TB
   S1["会话 A · agentPreset: standard"] --> T
   S2["会话 B · agentPreset: minimal"] --> T
 ```
+
+## 按挂载位置分的三类插件（2026-11-26 补）
+
+| 类别 | 行落在哪 | 谁决定用不用 | 干什么 | 边界 |
+|---|---|---|---|---|
+| **Host / profile 级** | profile 配置树（bundle 补丁 + 你的 patch） | profile 启动/重载，所有会话共享 | 共享服务、模型路由、会话持久化、工具执行器、UI 的 Host 行 | 改动通常要重启或 HMR |
+| **preset 子插件（Agent 级）** | `preset-<id>` 行的 `config.plugins` | 会话选中的预设 | persona、prompt 片段、限定作用域的工具、策略 | 只引用已安装包，不装包；已有会话保留启动时的修订 |
+| **Client 模块（浏览器面）** | bundle 的 `dsh.client`（`platform` / `immediately` / `inject` + `./client` 导出） | 随那条 Host 行加载，浏览器按 slot 注册 | UI 装饰、页面、菜单 | 不是第四种挂载位置，是 Host 行派生出的浏览器执行面；preset 管不到 |
+
+> 一句速记：**profile 决定有没有，bundle 补丁给出厂默认，你的 patch 改默认，preset 决定这桌点不点，Client 模块是界面在浏览器里的那个面。**
+
+```mermaid
+flowchart TD
+  A["① package.json：装了哪些包<br/>决定『有没有』与加载顺序"] --> B["bundle 补丁：出厂默认"]
+  B --> C["你的 cordis.patch.yml：改默认"]
+  C --> D["Host 行：服务 / UI / Client 模块<br/>所有会话"]
+  C --> E["preset-&lt;id&gt; 的 config.plugins<br/>选它的会话才挂"]
+```
+
+### 两种「加插件」别混
+
+| 说法 | 实际动作 | 落点 |
+|---|---|---|
+| 装插件 | 让包能被解析、bundle 参与合成 | `package.json` 的 `dependencies` / `dsh.profile.bundles`，详见[插件体系与安装](插件体系与安装.md) §1、§4 |
+| 加行（全局） | patch 的 `insert` 追加一条 Host row | ② 用户 patch 或某个 bundle 自带的 ④ |
+| 加行（按会话） | 写进某预设的 `config.plugins` | `preset-<id>` 行；包仍须先装进 profile，否则激活失败 |
+
+preset 里写了某个包但 profile 没装它 → 那一行激活不了，声明留在名录里并带诊断（**文档级**：`@deepseek-ai/dsh-agent-preset/README.md`）。
 
 ## 包含关系：抽掉一层，四个预设一起消失
 
