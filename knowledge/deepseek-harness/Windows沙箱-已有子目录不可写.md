@@ -92,6 +92,22 @@ setNamedSecurityInfoW(path, 1 /* SE_FILE_OBJECT */,
 - 原操作仍失败（标签还缺）→ 没有下一手可用；此时只能切「完全权限」并把问题报给上游。
 - **判定还取决于指哪一层**（**已验证**，本机两次实跑）：指工作区根 → `NOT_THIS_CLASS`（根上 `WRITE_DAC`/`WRITE_OWNER` 都齐、子树扫描只找外来包 ACE，于是 `FIXED=0`、`visited=321`、`nextAction: stop`）；指 `<workspace>/.git` → `PRECONDITION`。两种判定都到不了缺失的标签，但根级那次的输出最容易被误读成「整个工作区已检查完毕、没问题」。
 
+## 本机当前状态（2026-11-26 实测）
+
+| 子目录 | 能力 SID `S-1-4-…(W,D,DC)` | `Mandatory Label\Low` | 受限 shell 写 | 文件工具写 |
+|---|---|---|---|---|
+| 根 | 有 | 有 | 可 | 可 |
+| `knowledge`、`.git`、`.opencode`、`.workbuddy`、`.agents` | 有 | 有 | 可 | 可 |
+| `evals`、`.openchamber` | 无 | 无 | **被拒** | 可 |
+
+要点（**已验证**，本机实跑）：
+
+- 2026-11-25 那次「整树补标签」实际是**按目录逐个跑的**，只覆盖 `.git` / `knowledge` / `.opencode` / `.workbuddy` 四个目录，`evals` 与 `.openchamber` 至今没有能力项也没有 Low 标签 → 受限 shell 写这两个目录一律 `Access denied`。
+- 因此「老目录 = 不可写」只是默认状态，不是判据：同为 10 月的老目录，`knowledge` 今天可写、`evals` 今天不可写。判据仍是那两条 ACE。
+- 不对称再次复现：`evals` 里文件工具 `write` 成功、受限 shell 写失败——文件工具在可信代码里做路径包含检查，不受 ACL 约束。
+- 用受限 shell 在 `evals` 里留下的文件，之后**连删都做不了**（受限令牌在 `evals` 上没有任何授权项）；清理需提权执行一次 `Remove-Item`。
+- `.agents`（2026-11-25 23:44 创建）能力项与标签均为继承而来，与「会话/修复后新建的目录」同一条路径。
+
 ## 绕行与修复现状
 
 **临时绕行**：需要 shell 写仓库（`git` 提交、脚本写子目录）时把会话切到「完全权限」（`danger-full-access`）；文件工具不受影响，日常改文件仍可用「工作区内修改」。
