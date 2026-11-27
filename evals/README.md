@@ -30,16 +30,18 @@ evals/<任务名>/<model-slug>.html
 | `pelican-bike-basic-prompt/iceman-contributor-free.html` | 鹈鹕骑自行车，一句话提示词；首版是静态 SVG，用户要求后才追加 CSS 动画 | Iceman Contributor Free（`opencode-go`） | 2026-10-28 | `ses_e7d52818bffeZZeOZOBqe6ZWDU` |
 | `pelican-bike-basic-prompt/hunyuan-4.html` | `Generate an HTML file that renders an SVG of a pelican riding a bicycle`（一句话提示词原文；单文件 HTML，内嵌 SVG 并自带循环动画） | 混元 4（Hunyuan 4） | 2026-11-05 | — |
 | `pelican-bike-basic-prompt/mimo-v2.6-pro.html` | `Generate an HTML file that renders an SVG of a pelican riding a bicycle`（一句话提示词原文；单文件 HTML，内嵌 SVG；首版静态，用户指出后同会话补单时钟 rAF 循环动画） | MiMo V2.6 Pro | 2026-11-05 | — |
+| `pelican-bike-basic-prompt/hungerg-free.html` | `我在使用这个模型，请用鹈鹕骑自行车测试一下它的能力`（附模型选择器截图；单文件 HTML，内嵌 SVG；rAF 同时钟驱动车轮、曲柄、双腿与视差，带暂停和调速） | HungerG Free | 2026-11-27 | `session-044f6e70-7018-4d76-ade0-2ac4c579da92` |
 
-提示词原文未存档（上表写的是任务要点），只有 `pelican-bike-basic-prompt/` 这一组存了原文：
+早期条目的提示词原文未存档（上表写的是任务要点）；`pelican-bike-basic-prompt/` 这一组存了下面两句原文：
 
 ```
 Generate an HTML file that renders an SVG of a pelican riding a bicycle
+我在使用这个模型，请用鹈鹕骑自行车测试一下它的能力
 ```
 
-（Iceman 那次同一会话里追加的两句：「你那个文件并没有看到呀」——只贴代码未落盘；「这应该是一个动画呀」——补动画。混元 4 那次没有追加要求，动画是首版自带的。MiMo V2.6 Pro 首版是静态 SVG，用户指出「当然应该把动画加上的呀」后在同一份文件上补循环动画。）
+（Iceman 那次同一会话里追加的两句：「你那个文件并没有看到呀」——只贴代码未落盘；「这应该是一个动画呀」——补动画。混元 4 那次没有追加要求，动画是首版自带的。MiMo V2.6 Pro 首版是静态 SVG，用户指出「当然应该把动画加上的呀」后在同一份文件上补循环动画。HungerG Free 用的是中文能力测试提示词，并附模型选择器截图。）
 
-`pelican-bike/` 与 `pelican-bike-basic-prompt/` 是两套不同提示词的产物，别混着比：前者产出的两版都自带控制面板与丰富场景；后者是"一句话要求"，同目录下现有 Iceman、混元 4、MiMo V2.6 Pro 三份答卷，用的是同一句提示词，可直接对比。
+`pelican-bike/` 与 `pelican-bike-basic-prompt/` 是两套不同提示词的产物，别混着比：前者产出的两版都自带控制面板与丰富场景；后者是"一句话要求"，其中 Iceman、混元 4、MiMo V2.6 Pro 三份答卷用的是同一句英文提示词，可直接对比。HungerG Free 同题但不同提示词，不属于这三份的同提示词对照组；原计划另建 `pelican-bike-zh-test/`，当前文件沙箱拒绝创建新目录，因此暂存于原目录并在此标记。
 
 同一次章鱼任务里其他模型的产出（`octopus-bike.html` 等）没有入库。
 
