@@ -62,6 +62,7 @@ GET http://127.0.0.1:<port>/
 - 鉴权用的是 **launch token**：`dsh web` 启动时随机生成、只在该进程内存里，随它打印的 URL 一起给出。
 - Desktop 窗口不走这条：它用裸 `${origin}/` 走内部受信通道，**从不打印 token**（**源码级**：`dsh-desktop-host`）。所以从 Desktop 的 `DSH_WEB_URL` 反推不出一个浏览器能用的地址——「用外部浏览器加入 Desktop 进程」这条路不存在。要在浏览器里用，就自己起 `dsh --profile web`，拿它打印的带 token URL。
 - 反向也成立：端口能连上、返回 401，只说明有进程在听，**不说明当前是浏览器 Web**。
+- 怎么起浏览器 Web、拿 token URL、后台常驻与 Desktop 共存的取舍见 [Web 进程：启动、后台常驻与 Desktop 共存](Web进程-启动常驻与Desktop共存.md)。
 
 ## 源码依据（源码级）
 
